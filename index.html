@@ -3,98 +3,148 @@
 <html>
 <header>
     <style>
-    .container {
-        display: grid;
-        grid-template-areas:
-            "search box output";
-        grid-template-columns: .5fr.5fr 3fr;
-        gap: 5px;
-        background-color: #2196F3;
-        padding: 5px;
-    }
+        .container {
+            display: grid;
+            grid-template-areas: "search box output";
+            grid-template-columns: 0.5fr.5fr 3fr;
+            gap: 5px;
+            background-color: #2196f3;
+            padding: 5px;
+        }
 
-    .container>div {
-        background-color: rgba(255, 255, 255, 0.8);
-        padding: 5px;
-    }
+        .container>div {
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 5px;
+        }
 
-    .container>div.search {
-        grid-area: search;
-    }
+        .container>div.search {
+            grid-area: search;
+        }
 
-    .container>div.output {
-        grid-area: output;
-    }
+        .container>div.output {
+            grid-area: output;
+        }
 
-    .container>div.box {
-        grid-area: box;
-        background-color: #f1f1f1;
-        padding: 5px;
-    }
-    h3 {
-        font-family: Calibri;
-        font-size: 16pt;
-        padding: 0px;
-        font-weight: bold;
-        margin-bottom: 2px;
-        margin-top: 3px
-    }
+        .container>div.box {
+            grid-area: box;
+            background-color: #f1f1f1;
+            padding: 5px;
+        }
 
-    #search{
-        font-family: Calibri;
-        font-size: 24pt;
-        padding: 0px;
-        font-weight: bold;
-        margin-bottom: 2px;
-        margin-top: 3px;
-    }
-    label {
-        font-family: Calibri;
-        font-size: 16pt;
-        padding: 0px;
-        font-weight: normal;
-        margin-bottom: 2px;
-        margin-top: 3px;
-    }
-    input[type="radio"] {
-        accent-color: #0033a0
-    }
+        h3 {
+            font-family: Calibri;
+            font-size: 16pt;
+            padding: 0px;
+            font-weight: bold;
+            margin-bottom: 2px;
+            margin-top: 3px;
+        }
+
+        #search {
+            font-family: Calibri;
+            font-size: 24pt;
+            padding: 0px;
+            font-weight: bold;
+            margin-bottom: 2px;
+            margin-top: 3px;
+        }
+
+        label {
+            font-family: Calibri;
+            font-size: 16pt;
+            padding: 0px;
+            font-weight: normal;
+            margin-bottom: 2px;
+            margin-top: 3px;
+        }
+
+        input[type="radio"] {
+            accent-color: #0033a0;
+        }
     </style>
-
-
 </header>
 
 <body>
     <form>
         <span><label for="search" id="search">Search:</label>
-        <input type="text" id="search"> <br></span>
+            <input type="text" id="search" /> <br /></span>
         <div class="container">
             <div class="search">
                 <h3>Search By</h3>
                 <div>
-                    <input type="radio" id="searchCounty" name="search" value="County" checked="Checked">
-                    <label for="searchCounty">County</label><br>
+                    <input type="radio" id="searchCompany" name="search" value="Company" checked="checked" />
+                    <label for="searchCompany">Company</label><br />
                 </div>
                 <div>
-                    <input type="radio" id="searchCompany" name="search" value="Company">
-                    <label for="searchCompany">Company</label><br>
+                    <input type="radio" id="searchCounty" name="search" value="County" />
+                    <label for="searchCounty">County</label><br />
                 </div>
                 <div>
-                <input type="radio" id="searchCity" name="search" value="searchCity">
-                <label for="searchCity">City</label><br>
+                    <input type="radio" id="searchCity" name="search" value="searchCity" />
+                    <label for="searchCity">City</label><br />
                 </div>
                 <div>
-                <input type="radio" id="searchProducts" name="search" value="Products_Produced">
-                <label for="searchProducts">Products</label><br>
+                    <input type="radio" id="searchProducts" name="search" value="Products_Produced" />
+                    <label for="searchProducts">Products</label><br />
                 </div>
                 <h3 style="margin-top: 10px">FILTER BY</h3>
-                <input type="radio" id="filterCounty" name="filter" value="County">
-                <label for="County2">County</label><br>
+                <div>
+                    <input type="radio" id="filterNone" name="filter" value="None" checked="checked" />
+                    <label for="filterNone">None</label><br />
+                </div>
+                <div>
+                    <input type="radio" id="filterCounty" name="filter" value="County" />
+                    <label for="filterCounty">County</label><br />
+                </div>
+                <div>
+                    <input type="radio" id="filterProducts" name="filter" value="Products_Produced" />
+                    <label for="filterProducts">Products</label>
+                </div>
+                <div>
+                    <input type="radio" id="filterEmployees" name="filter" value="Number_Of_Employees" />
+                    <label for="filterEmployees">Employees</label>
+                </div>
+                <div>
+                    <input type="radio" id="filterMethods" name="filter" value="Methods_Bought">
+                    <label for="filterMethods">Methods</label>
+                </div>
+                <h3 style="margin-top: 10px">Category</h3>
+                <div>
+                    <input type="radio" id="categoryNone" name="category" value="None" checked="checked">
+                    <label for="categoryNone">None</label>
+                </div>
+                <div>
+                    <input type="radio" id="categorySpecies" name="category" value="Species_Produced">
+                    <label for="categorySpecies">Species</label>
+                </div>
+                <div>
+                    <input type="radio" id="categoryProducts" name="category" value="Products_Produced">
+                    <label for="categoryProducts">Products</label>
+                </div>
+                <div>
+                    <input type="radio" id="categoryEmployees" name="category" value="Number_Of_Employees">
+                    <label for="categoryEmployees">Employees</label>
+                </div>
+                <div>
+                    <input type="radio" id="categorySells" name="category" value="Sells_To_Public">
+                    <label for="categorySells">Sells to Public</label>
+                </div>
+                <div>
+                    <input type="radio" id="categoryMethods" name="category" value="Methods_Bought">
+                    <label for="categoryMethods">Methods</label>
+                </div>
             </div>
         </div>
     </form>
-    
-
 </body>
-
+<script>
+    const radioSearch = document.querySelectorAll('input[name="search"]');
+    radioSearch.forEach(radioSearch=> {
+        radioSearch.addEventListener('change', function(event){
+            if(event.target.checked){
+                console.log('you selected', event.target.value);
+            }
+        });
+    });
+</script>
 </html>
