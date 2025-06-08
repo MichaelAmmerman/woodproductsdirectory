@@ -65,6 +65,7 @@
 </header>
 
 <body>
+    <script src="sorttable.js"></script>
     <form>
         <span><label for="search" id="search">Search:</label>
             <input type="text" id="search" /> <br /></span>
@@ -80,7 +81,7 @@
                     <label for="searchCounty">County</label><br />
                 </div>
                 <div>
-                    <input type="radio" id="searchCity" name="search" value="searchCity" />
+                    <input type="radio" id="searchCity" name="search" value="City" />
                     <label for="searchCity">City</label><br />
                 </div>
                 <div>
@@ -134,17 +135,234 @@
                     <label for="categoryMethods">Methods</label>
                 </div>
             </div>
+            <div class="box" id="createFilter">
+
+            </div>
+            <div class="output">
+
+            </div>
         </div>
     </form>
 </body>
 <script>
     const radioSearch = document.querySelectorAll('input[name="search"]');
-    radioSearch.forEach(radioSearch=> {
-        radioSearch.addEventListener('change', function(event){
-            if(event.target.checked){
+    radioSearch.forEach(radioSearch => {
+        radioSearch.addEventListener('change', function (event) {
+            if (event.target.checked) {
+                console.log('you selected', event.target.value);
+                lockMethodsandProducts(event);
+            }
+
+        })
+    });
+
+    const radioFilter = document.querySelectorAll('input[name="filter"]');
+    radioFilter.forEach(radioFilter => {
+        radioFilter.addEventListener('change', function (event) {
+            if (event.target.checked) {
+                console.log('you selected', event.target.value);
+                buildFilter(event);
+            }
+        });
+    });
+
+    const radioCategory = document.querySelectorAll('input[name="category"]');
+    radioCategory.forEach(radioCategory => {
+        radioCategory.addEventListener('change', function (event) {
+            if (event.target.checked) {
                 console.log('you selected', event.target.value);
             }
         });
     });
+
+
+
+    function lockMethodsandProducts(event) {
+        const filterMethods = document.getElementById('filterMethods');
+        const filterProducts = document.getElementById('filterProducts');
+        const filterEmployees = document.getElementById('filterEmployees');
+        const searchCounty = document.getElementById('searchCounty');
+        const filterCounty = document.getElementById('filterCounty');
+
+        console.log(event);
+
+        if (
+            event.target.value === 'County'
+        ) {
+            filterCounty.disabled = true;
+        }
+        else {
+            filterCounty.disabled = false;
+        }
+
+        if (event.target.value === 'Products_Produced') {
+            filterProducts.disabled = true;
+        }
+
+        else {
+            filterProducts.disabled = false;
+
+        }
+
+    }
+
+    function buildFilter(event) {
+        const filterMethods = document.getElementById('filterMethods');
+        const filterProducts = document.getElementById('filterProducts');
+        const filterEmployees = document.getElementById('filterEmployees');
+        // const searchCounty = document.getElementById('searchCounty');
+        const filterCounty = document.getElementById('filterCounty');
+        document.getElementById("createFilter").innerHTML = ""; // Clear previous filters
+        if (event.target.value === 'County') {
+            for (let i = 0; i < countyArray.length; i++) {
+                const checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.value = countyArray[i];
+                checkbox.name = countyArray[i];
+                checkbox.id = countyArray[i];
+
+                const label = document.createElement("label");
+                label.htmlFor = countyArray[i];
+                label.appendChild(document.createTextNode(countyArray[i]));
+
+                document.getElementById("createFilter").appendChild(checkbox);
+                document.getElementById("createFilter").appendChild(label);
+                document.getElementById("createFilter").appendChild(document.createElement("br"));
+            }
+        } else if (event.target.value === 'Products_Produced') {
+
+        } else if (event.target.value === 'Number_Of_Employees') {
+
+        } else if (event.target.value === 'Methods_Bought') {
+
+        } else {
+
+        }
+
+    }
+
+    var countyArray = [
+        "Adair",
+        "Allen",
+        "Anderson",
+        "Ballard",
+        "Barren",
+        "Bath",
+        "Bell",
+        "Boone",
+        "Bourbon",
+        "Boyd",
+        "Boyle",
+        "Bracken",
+        "Breathitt",
+        "Breckinridge",
+        "Bullitt",
+        "Butler",
+        "Caldwell",
+        "Calloway",
+        "Campbell",
+        "Carlisle",
+        "Carroll",
+        "Carter",
+        "Casey",
+        "Christian",
+        "Clarke",
+        "Clay",
+        "Clinton",
+        "Crittenden",
+        "Cumberland",
+        "Daviess",
+        "Edmonson",
+        "Elliott",
+        "Estill",
+        "Fayette",
+        "Fleming",
+        "Floyd",
+        "Franklin",
+        "Fulton",
+        "Gallatin",
+        "Garrad",
+        "Grant",
+        "Graves",
+        "Grayson",
+        "Green",
+        "Greenup",
+        "Hancock",
+        "Hardin",
+        "Harlan",
+        "Harrison",
+        "Hart",
+        "Henderson",
+        "Henry",
+        "Hickman",
+        "Hopkins",
+        "Jackson",
+        "Jefferson",
+        "Jessamine",
+        "Johnson",
+        "Kenton",
+        "Knott",
+        "Knox",
+        "LaRue",
+        "Laurel",
+        "Lawrence",
+        "Lee",
+        "Leslie",
+        "Letcher",
+        "Lewis",
+        "Lincoln",
+        "Livingston",
+        "Logan",
+        "Lyon",
+        "McCracken",
+        "McCreary",
+        "McLean",
+        "Madison",
+        "Magoffin",
+        "Marion",
+        "Marshall",
+        "Martin",
+        "Mason",
+        "Meade",
+        "Menifee",
+        "Mercer",
+        "Metcalfe",
+        "Monroe",
+        "Montgomery",
+        "Morgan",
+        "Muhlenburg",
+        "Nelson",
+        "Nicholas",
+        "Ohio",
+        "Oldham",
+        "Owen",
+        "Owsley",
+        "Pendleton",
+        "Perry",
+        "Pike",
+        "Powell",
+        "Pulaski",
+        "Robertson",
+        "Rockcastle",
+        "Rowan",
+        "Russell",
+        "Scott",
+        "Shelby",
+        "Simpson",
+        "Spencer",
+        "Taylor",
+        "Todd",
+        "Trigg",
+        "Trimble",
+        "Union",
+        "Warren",
+        "Washington",
+        "Wayne",
+        "Webster",
+        "Whitley",
+        "Wolfe",
+        "Woodford",
+    ];
 </script>
+
 </html>
