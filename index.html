@@ -6,7 +6,7 @@
         .container {
             display: grid;
             grid-template-areas: "search box output";
-            grid-template-columns: 0.5fr .75fr 3fr;
+            grid-template-columns: 10vw 15vw 75vw;
             gap: 5px;
             background-color: #2196f3;
             padding: 5px;
@@ -71,12 +71,14 @@
         }
     </style>
 </header>
-
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+</head>
 <body>
     <script src="sorttable.js"></script>
     <form>
-        <span><label for="search" id="search">Search:</label>
-            <input type="text" id="search" /> <br /></span>
+        <span><label for="search" id="search" >Search:</label>
+            <input type="text" id="search" style="width: 92.8vw;"/> <br /></span>
         <div class="container">
             <div class="search">
                 <h3>Search By</h3>
