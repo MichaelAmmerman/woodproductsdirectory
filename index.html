@@ -5,8 +5,8 @@
     <style>
         .container {
             display: grid;
-            grid-template-areas: "search box output";
-            grid-template-columns: 10vw 15vw 75vw;
+            grid-template-areas: "search box1 box2 output";
+            grid-template-columns: 10vw 15vw 15vw 60vw;
             gap: 5px;
             background-color: #2196f3;
             padding: 5px;
@@ -26,8 +26,21 @@
 
         }
 
-        .container>div.box {
-            grid-area: box;
+        .container>div.box1 {
+            grid-area: box1;
+            background-color: #f1f1f1;
+            padding: 5px;
+            overflow-y: auto;
+            /* Enable vertical scrolling */
+            overflow-x: hidden;
+            /* Optional: hide horizontal scroll */
+            max-height: 80vh;
+            /* Max 80% of viewport height */
+            overflow-y: auto;
+        }
+
+        .container>div.box2 {
+            grid-area: box2;
             background-color: #f1f1f1;
             padding: 5px;
             overflow-y: auto;
@@ -149,7 +162,7 @@
                     <label for="categoryMethods">Methods</label>
                 </div>
             </div>
-            <div class="box" id="createFilter">
+            <div class="box1" id="createFilter">
 
             </div>
             <div class="output">
