@@ -1,765 +1,1024 @@
 <!DOCTYPE html>
 
 <html>
-<header>
+  <header>
     <style>
-        .container {
-            display: grid;
-            grid-template-areas: "search box1 box2 output";
-            grid-template-columns: 10vw 15vw 15vw 60vw;
-            gap: 5px;
-            background-color: #2196f3;
-            padding: 5px;
-        }
+      .container {
+        display: grid;
+        grid-template-areas: "search box1 box2 output";
+        grid-template-columns: 10vw 15vw 15vw 60vw;
+        gap: 5px;
+        background-color: #2196f3;
+        padding: 5px;
+      }
 
-        .container>div {
-            background-color: rgba(255, 255, 255, 0.8);
-            padding: 5px;
-        }
+      .container > div {
+        background-color: rgba(255, 255, 255, 0.8);
+        padding: 5px;
+      }
 
-        .container>div.search {
-            grid-area: search;
-        }
+      .container > div.search {
+        grid-area: search;
+      }
 
-        .container>div.output {
-            grid-area: output;
+      .container > div.output {
+        grid-area: output;
+      }
 
-        }
+      .container > div.box1 {
+        grid-area: box1;
+        background-color: #f1f1f1;
+        padding: 5px;
+        overflow-y: auto;
+        /* Enable vertical scrolling */
+        overflow-x: hidden;
+        /* Optional: hide horizontal scroll */
+        max-height: 80vh;
+        /* Max 80% of viewport height */
+        overflow-y: auto;
+      }
 
-        .container>div.box1 {
-            grid-area: box1;
-            background-color: #f1f1f1;
-            padding: 5px;
-            overflow-y: auto;
-            /* Enable vertical scrolling */
-            overflow-x: hidden;
-            /* Optional: hide horizontal scroll */
-            max-height: 80vh;
-            /* Max 80% of viewport height */
-            overflow-y: auto;
-        }
+      .container > div.box2 {
+        grid-area: box2;
+        background-color: #f1f1f1;
+        padding: 5px;
+        overflow-y: auto;
+        /* Enable vertical scrolling */
+        overflow-x: hidden;
+        /* Optional: hide horizontal scroll */
+        max-height: 80vh;
+        /* Max 80% of viewport height */
+        overflow-y: auto;
+      }
 
-        .container>div.box2 {
-            grid-area: box2;
-            background-color: #f1f1f1;
-            padding: 5px;
-            overflow-y: auto;
-            /* Enable vertical scrolling */
-            overflow-x: hidden;
-            /* Optional: hide horizontal scroll */
-            max-height: 80vh;
-            /* Max 80% of viewport height */
-            overflow-y: auto;
-        }
+      h3 {
+        font-family: Calibri;
+        font-size: 16pt;
+        padding: 0px;
+        font-weight: bold;
+        margin-bottom: 2px;
+        margin-top: 3px;
+      }
 
-        h3 {
-            font-family: Calibri;
-            font-size: 16pt;
-            padding: 0px;
-            font-weight: bold;
-            margin-bottom: 2px;
-            margin-top: 3px;
-        }
+      #search {
+        font-family: Calibri;
+        font-size: 24pt;
+        padding: 0px;
+        font-weight: bold;
+        margin-bottom: 2px;
+        margin-top: 3px;
+      }
 
-        #search {
-            font-family: Calibri;
-            font-size: 24pt;
-            padding: 0px;
-            font-weight: bold;
-            margin-bottom: 2px;
-            margin-top: 3px;
-        }
+      label {
+        font-family: Calibri;
+        font-size: 13pt;
+        padding: 0px;
+        font-weight: normal;
+        margin-bottom: 2px;
+        margin-top: 3px;
+      }
 
-        label {
-            font-family: Calibri;
-            font-size: 13pt;
-            padding: 0px;
-            font-weight: normal;
-            margin-bottom: 2px;
-            margin-top: 3px;
-        }
-
-        input[type="radio"] {
-            accent-color: #0033a0;
-        }
+      input[type="radio"] {
+        accent-color: #0033a0;
+      }
     </style>
-</header>
-<head>
+  </header>
+  <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-</head>
-<body>
+  </head>
+  <body>
     <script src="sorttable.js"></script>
     <form>
-        <span><label for="search" id="search" >Search:</label>
-            <input type="text" id="search" style="width: 90vw;"/> <br /></span>
-        <div class="container">
-            <div class="search">
-                <h3>SEARCH BY</h3>
-                <div>
-                    <input type="radio" id="searchNone" name="search" value="None" checked="checked" />
-                    <label for="searchNone">None</label><br />
-                </div>
-                <div>
-                    <input type="radio" id="searchCompany" name="search" value="Company"  />
-                    <label for="searchCompany">Company</label><br />
-                </div>
-                <div>
-                    <input type="radio" id="searchCounty" name="search" value="County" />
-                    <label for="searchCounty">County</label><br />
-                </div>
-                <div>
-                    <input type="radio" id="searchCity" name="search" value="City" />
-                    <label for="searchCity">City</label><br />
-                </div>
-                <div>
-                    <input type="radio" id="searchProducts" name="search" value="Products_Produced" />
-                    <label for="searchProducts">Products</label><br />
-                </div>
-                <h3 style="margin-top: 10px">FILTER BY</h3>
-                <div>
-                    <input type="radio" id="filterNone" name="filter" value="None" checked="checked" />
-                    <label for="filterNone">None</label><br />
-                </div>
-                <div>
-                    <input type="radio" id="filterCounty" name="filter" value="County" />
-                    <label for="filterCounty">County</label><br />
-                </div>
-                <div>
-                    <input type="radio" id="filterProducts" name="filter" value="Products_Produced" />
-                    <label for="filterProducts">Products</label>
-                </div>
-                <div>
-                    <input type="radio" id="filterEmployees" name="filter" value="Number_Of_Employees" />
-                    <label for="filterEmployees">Employees</label>
-                </div>
-                <div>
-                    <input type="radio" id="filterMethods" name="filter" value="Methods_Bought">
-                    <label for="filterMethods">Methods</label>
-                </div>
-                <h3 style="margin-top: 10px">CATEGORY</h3>
-                <div>
-                    <input type="radio" id="categoryNone" name="category" value="None" checked="checked">
-                    <label for="categoryNone">None</label>
-                </div>
-                <div>
-                    <input type="radio" id="categorySpecies" name="category" value="Species_Produced">
-                    <label for="categorySpecies">Species</label>
-                </div>
-                <div>
-                    <input type="radio" id="categoryProducts" name="category" value="Products_Produced">
-                    <label for="categoryProducts">Products</label>
-                </div>
-                <div>
-                    <input type="radio" id="categoryEmployees" name="category" value="Number_Of_Employees">
-                    <label for="categoryEmployees">Employees</label>
-                </div>
-                <div>
-                    <input type="radio" id="categorySells" name="category" value="Sells_To_Public">
-                    <label for="categorySells">Sells to Public</label>
-                </div>
-                <div>
-                    <input type="radio" id="categoryMethods" name="category" value="Methods_Bought">
-                    <label for="categoryMethods">Methods</label>
-                </div>
-            </div>
-            <div class="box1" id="createFilter">
-
-            </div>
-            <div class="output">
-
-            </div>
+      <span
+        ><label for="search" id="search">Search:</label>
+        <input type="text" id="search" style="width: 90vw" /> <br
+      /></span>
+      <div class="container">
+        <div class="search">
+          <h3>SEARCH BY</h3>
+          <div>
+            <input
+              type="radio"
+              id="searchNone"
+              name="search"
+              value="None"
+              checked="checked"
+            />
+            <label for="searchNone">None</label><br />
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="searchCompany"
+              name="search"
+              value="Company"
+            />
+            <label for="searchCompany">Company</label><br />
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="searchCounty"
+              name="search"
+              value="County"
+            />
+            <label for="searchCounty">County</label><br />
+          </div>
+          <div>
+            <input type="radio" id="searchCity" name="search" value="City" />
+            <label for="searchCity">City</label><br />
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="searchProducts"
+              name="search"
+              value="Products_Produced"
+            />
+            <label for="searchProducts">Products</label><br />
+          </div>
+          <h3 style="margin-top: 10px">FILTER BY</h3>
+          <div>
+            <input
+              type="radio"
+              id="filterNone"
+              name="filter"
+              value="None"
+              checked="checked"
+            />
+            <label for="filterNone">None</label><br />
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="filterCounty"
+              name="filter"
+              value="County"
+            />
+            <label for="filterCounty">County</label><br />
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="filterProducts"
+              name="filter"
+              value="Products_Produced"
+            />
+            <label for="filterProducts">Products</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="filterEmployees"
+              name="filter"
+              value="Number_Of_Employees"
+            />
+            <label for="filterEmployees">Employees</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="filterMethods"
+              name="filter"
+              value="Methods_Bought"
+            />
+            <label for="filterMethods">Methods</label>
+          </div>
+          <h3 style="margin-top: 10px">CATEGORY</h3>
+          <div>
+            <input
+              type="radio"
+              id="categoryNone"
+              name="category"
+              value="None"
+              checked="checked"
+            />
+            <label for="categoryNone">None</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="categorySpecies"
+              name="category"
+              value="Species_Produced"
+            />
+            <label for="categorySpecies">Species</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="categoryProducts"
+              name="category"
+              value="Products_Produced"
+            />
+            <label for="categoryProducts">Products</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="categoryEmployees"
+              name="category"
+              value="Number_Of_Employees"
+            />
+            <label for="categoryEmployees">Employees</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="categorySells"
+              name="category"
+              value="Sells_To_Public"
+            />
+            <label for="categorySells">Sells to Public</label>
+          </div>
+          <div>
+            <input
+              type="radio"
+              id="categoryMethods"
+              name="category"
+              value="Methods_Bought"
+            />
+            <label for="categoryMethods">Methods</label>
+          </div>
         </div>
+        <div class="box1" id="createFilter"></div>
+        <div class="box2" id="createCategory"></div>
+        <div class="output"></div>
+      </div>
     </form>
-</body>
-<script>
+  </body>
+  <script>
     const radioSearch = document.querySelectorAll('input[name="search"]');
-    radioSearch.forEach(radioSearch => {
-        radioSearch.addEventListener('change', function (event) {
-            if (event.target.checked) {
-                console.log('you selected', event.target.value);
-                lockMethodsandProducts(event);
-            }
-
-        })
+    radioSearch.forEach((radioSearch) => {
+      radioSearch.addEventListener("change", function (event) {
+        if (event.target.checked) {
+          console.log("you selected", event.target.value);
+          lockMethodsandProducts(event);
+        }
+      });
     });
 
     const radioFilter = document.querySelectorAll('input[name="filter"]');
-    radioFilter.forEach(radioFilter => {
-        radioFilter.addEventListener('change', function (event) {
-            if (event.target.checked) {
-                console.log('you selected', event.target.value);
-                buildFilter(event);
-            }
-        });
+    radioFilter.forEach((radioFilter) => {
+      radioFilter.addEventListener("change", function (event) {
+        if (event.target.checked) {
+          console.log("you selected", event.target.value);
+          filterByLock(event);
+          buildFilter(event);
+        }
+      });
     });
 
     const radioCategory = document.querySelectorAll('input[name="category"]');
-    radioCategory.forEach(radioCategory => {
-        radioCategory.addEventListener('change', function (event) {
-            if (event.target.checked) {
-                console.log('you selected', event.target.value);
-            }
-        });
+    radioCategory.forEach((radioCategory) => {
+      radioCategory.addEventListener("change", function (event) {
+        if (event.target.checked) {
+          console.log("you selected", event.target.value);
+          buildCategory(event);
+        }
+      });
     });
 
-
-
     function lockMethodsandProducts(event) {
-        const filterMethods = document.getElementById('filterMethods');
-        const filterProducts = document.getElementById('filterProducts');
-        const filterEmployees = document.getElementById('filterEmployees');
-        const searchCounty = document.getElementById('searchCounty');
-        const filterCounty = document.getElementById('filterCounty');
+      const filterMethods = document.getElementById("filterMethods");
+      const filterProducts = document.getElementById("filterProducts");
+      const filterEmployees = document.getElementById("filterEmployees");
+      const searchCounty = document.getElementById("searchCounty");
+      const filterCounty = document.getElementById("filterCounty");
+      let categoryProducts = document.getElementById("categoryProducts");
 
-        console.log(event);
+      console.log(event);
 
-        if (
-            event.target.value === 'County'
-        ) {
-            filterCounty.disabled = true;
-        }
-        else {
-            filterCounty.disabled = false;
-        }
+      if (event.target.value === "County") {
+        filterCounty.disabled = true;
+      } else {
+        filterCounty.disabled = false;
+      }
 
-        if (event.target.value === 'Products_Produced') {
-            filterProducts.disabled = true;
-        }
-
-        else {
-            filterProducts.disabled = false;
-
-        }
-
+      if (event.target.value === "Products_Produced") {
+        filterProducts.disabled = true;
+        categoryProducts.disabled = true;
+      } else {
+        filterProducts.disabled = false;
+      }
     }
 
     function buildFilter(event) {
-        const filterMethods = document.getElementById('filterMethods');
-        const filterProducts = document.getElementById('filterProducts');
-        const filterEmployees = document.getElementById('filterEmployees');
-        // const searchCounty = document.getElementById('searchCounty');
-        const filterCounty = document.getElementById('filterCounty');
-        document.getElementById("createFilter").innerHTML = ""; // Clear previous filters
-        if (event.target.value === 'County') {
-            for (let i = 0; i < countyArray.length; i++) {
-                const checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.value = countyArray[i];
-                checkbox.name = countyArray[i];
-                checkbox.id = countyArray[i];
+      const filterMethods = document.getElementById("filterMethods");
+      const filterProducts = document.getElementById("filterProducts");
+      const filterEmployees = document.getElementById("filterEmployees");
+      // const searchCounty = document.getElementById('searchCounty');
+      const filterCounty = document.getElementById("filterCounty");
+      document.getElementById("createFilter").innerHTML = ""; // Clear previous filters
+      if (event.target.value === "County") {
+        for (let i = 0; i < countyArray.length; i++) {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = countyArray[i];
+          checkbox.name = countyArray[i];
+          checkbox.id = countyArray[i];
 
-                const label = document.createElement("label");
-                label.htmlFor = countyArray[i];
-                label.appendChild(document.createTextNode(countyArray[i]));
+          const label = document.createElement("label");
+          label.htmlFor = countyArray[i];
+          label.appendChild(document.createTextNode(countyArray[i]));
 
-                document.getElementById("createFilter").appendChild(checkbox);
-                document.getElementById("createFilter").appendChild(label);
-                document.getElementById("createFilter").appendChild(document.createElement("br"));
-            }
-        } else if (event.target.value === 'Products_Produced') {
-            for (let i = 0; i < products.length; i++) {
-                const checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.value = products[i];
-                checkbox.name = products[i];
-                checkbox.id = products[i];
-
-                const label = document.createElement("label");
-                label.htmlFor = products[i];
-                label.appendChild(document.createTextNode(products[i]));
-
-                document.getElementById("createFilter").appendChild(checkbox);
-                document.getElementById("createFilter").appendChild(label);
-                document.getElementById("createFilter").appendChild(document.createElement("br"));
-            }
-        } else if (event.target.value === 'Number_Of_Employees') {
-            for (let i = 0; i < employeesNumber.length; i++) {
-                const checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.value = employeesNumber[i];
-                checkbox.name = employeesNumber[i];
-                checkbox.id = employeesNumber[i];
-
-                const label = document.createElement("label");
-                label.htmlFor = employeesNumber[i];
-                label.appendChild(document.createTextNode("Greater than " + employeesNumber[i]));
-
-                document.getElementById("createFilter").appendChild(checkbox);
-                document.getElementById("createFilter").appendChild(label);
-                document.getElementById("createFilter").appendChild(document.createElement("br"));
-            }
-        } else if (event.target.value === 'Methods_Bought') {
-            for (let i = 0; i < methodsBought.length; i++) {
-                const checkbox = document.createElement("input");
-                checkbox.type = "checkbox";
-                checkbox.value = methodsBought[i];
-                checkbox.name = methodsBought[i];
-                checkbox.id = methodsBought[i];
-
-                const label = document.createElement("label");
-                label.htmlFor = methodsBought[i];
-                label.appendChild(document.createTextNode(methodsBought[i]));
-
-                document.getElementById("createFilter").appendChild(checkbox);
-                document.getElementById("createFilter").appendChild(label);
-                document.getElementById("createFilter").appendChild(document.createElement("br"));
-            }
-        } else {
-
+          document.getElementById("createFilter").appendChild(checkbox);
+          document.getElementById("createFilter").appendChild(label);
+          document
+            .getElementById("createFilter")
+            .appendChild(document.createElement("br"));
         }
+      } else if (event.target.value === "Products_Produced") {
+        for (let i = 0; i < products.length; i++) {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = products[i];
+          checkbox.name = products[i];
+          checkbox.id = products[i];
 
+          const label = document.createElement("label");
+          label.htmlFor = products[i];
+          label.appendChild(document.createTextNode(products[i]));
+
+          document.getElementById("createFilter").appendChild(checkbox);
+          document.getElementById("createFilter").appendChild(label);
+          document
+            .getElementById("createFilter")
+            .appendChild(document.createElement("br"));
+        }
+      } else if (event.target.value === "Number_Of_Employees") {
+        for (let i = 0; i < employeesNumber.length; i++) {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = employeesNumber[i];
+          checkbox.name = employeesNumber[i];
+          checkbox.id = employeesNumber[i];
+
+          const label = document.createElement("label");
+          label.htmlFor = employeesNumber[i];
+          label.appendChild(
+            document.createTextNode("Greater than " + employeesNumber[i])
+          );
+
+          document.getElementById("createFilter").appendChild(checkbox);
+          document.getElementById("createFilter").appendChild(label);
+          document
+            .getElementById("createFilter")
+            .appendChild(document.createElement("br"));
+        }
+      } else if (event.target.value === "Methods_Bought") {
+        for (let i = 0; i < methodsBought.length; i++) {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = methodsBought[i];
+          checkbox.name = methodsBought[i];
+          checkbox.id = methodsBought[i];
+
+          const label = document.createElement("label");
+          label.htmlFor = methodsBought[i];
+          label.appendChild(document.createTextNode(methodsBought[i]));
+
+          document.getElementById("createFilter").appendChild(checkbox);
+          document.getElementById("createFilter").appendChild(label);
+          document
+            .getElementById("createFilter")
+            .appendChild(document.createElement("br"));
+        }
+      } else {
+      }
     }
 
-    let employeesNumber = [1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100, 150, 200, 300, 400, 500, 1000];
+    function buildCategory(event) {
+      const categorySpecies = document.getElementById("categorySpecies");
+      const categoryProducts = document.getElementById("categoryProducts");
+      const categoryEmployees = document.getElementById("categoryEmployees");
+      const categorySells = document.getElementById("categorySells");
+      const categoryMethods = document.getElementById("categoryMethods");
 
+      document.getElementById("createCategory").innerHTML = ""; // Clear previous filters
+      if (event.target.value === "Species_Produced") {
+        for (let i = 0; i < species.length; i++) {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = species[i];
+          checkbox.name = species[i];
+          checkbox.id = species[i];
+
+          const label = document.createElement("label");
+          label.htmlFor = species[i];
+          label.appendChild(document.createTextNode(species[i]));
+
+          document.getElementById("createCategory").appendChild(checkbox);
+          document.getElementById("createCategory").appendChild(label);
+          document
+            .getElementById("createCategory")
+            .appendChild(document.createElement("br"));
+        }
+      } else if (event.target.value === "Products_Produced") {
+        for (let i = 0; i < products.length; i++) {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = products[i];
+          checkbox.name = products[i];
+          checkbox.id = products[i];
+
+          const label = document.createElement("label");
+          label.htmlFor = products[i];
+          label.appendChild(document.createTextNode(products[i]));
+
+          document.getElementById("createCategory").appendChild(checkbox);
+          document.getElementById("createCategory").appendChild(label);
+          document
+            .getElementById("createCategory")
+            .appendChild(document.createElement("br"));
+        }
+      } else if (event.target.value === "Number_Of_Employees") {
+        for (let i = 0; i < employeesNumber.length; i++) {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = employeesNumber[i];
+          checkbox.name = employeesNumber[i];
+          checkbox.id = employeesNumber[i];
+
+          const label = document.createElement("label");
+          label.htmlFor = employeesNumber[i];
+          label.appendChild(
+            document.createTextNode("Greater than " + employeesNumber[i])
+          );
+
+          document.getElementById("createCategory").appendChild(checkbox);
+          document.getElementById("createCategory").appendChild(label);
+          document
+            .getElementById("createCategory")
+            .appendChild(document.createElement("br"));
+        }
+      } else if (event.target.value === "Methods_Bought") {
+        for (let i = 0; i < methodsBought.length; i++) {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = methodsBought[i];
+          checkbox.name = methodsBought[i];
+          checkbox.id = methodsBought[i];
+
+          const label = document.createElement("label");
+          label.htmlFor = methodsBought[i];
+          label.appendChild(document.createTextNode(methodsBought[i]));
+
+          document.getElementById("createCategory").appendChild(checkbox);
+          document.getElementById("createCategory").appendChild(label);
+          document
+            .getElementById("createCategory")
+            .appendChild(document.createElement("br"));
+        }
+      } else if (event.target.value === "Sells_To_Public") {
+        for (let i = 0; i < sells.length; i++) {
+          const checkbox = document.createElement("input");
+          checkbox.type = "checkbox";
+          checkbox.value = [i];
+          checkbox.name = sells[i];
+          checkbox.id = sells[i];
+
+          const label = document.createElement("label");
+          label.htmlFor = sells[i];
+          label.appendChild(document.createTextNode(sells[i]));
+
+          document.getElementById("createCategory").appendChild(checkbox);
+          document.getElementById("createCategory").appendChild(label);
+          document
+            .getElementById("createCategory")
+            .appendChild(document.createElement("br"));
+        }
+      }
+      
+    }
+
+    // filter category when selected from the filter by
+
+    function filterByLock(event) {
+      const filterCategoryMethods = document.getElementById("categoryMethods");
+      const filterCategoryProducts =
+        document.getElementById("categoryProducts");
+      const filterCategoryEmployees =
+        document.getElementById("categoryEmployees");
+
+      console.log(document.getElementById("searchProducts").disabled);
+      console.log(event);
+
+      if (event.target.value === "Methods_Bought") {
+        filterCategoryMethods.disabled = true;
+        if(document.getElementById('categoryMethods').disabled){
+            document.getElementById("categoryNone").checked = true;
+            document.getElementById("createCategory").innerHTML = "";
+        }
+      } else {
+        filterCategoryMethods.disabled = false;
+      }
+
+      if (
+        event.target.value === "Products_Produced" ||
+        document.getElementById("filterProducts").disabled
+      ) {
+        filterCategoryProducts.disabled = true;
+        if(document.getElementById("categoryProducts").disabled){
+            document.getElementById("categoryNone").checked = true;
+            document.getElementById("createCategory").innerHTML = "";
+        }
+      } else {
+        filterCategoryProducts.disabled = false;
+      }
+
+      if (event.target.value === "Number_Of_Employees") {
+        filterCategoryEmployees.disabled = true;
+        if(document.getElementById('categoryEmployees').disabled){
+            document.getElementById("categoryNone").checked = true;
+            document.getElementById("createCategory").innerHTML = "";
+        }
+      } else {
+        filterCategoryEmployees.disabled = false;
+      }
+    }
+
+    let employeesNumber = [
+      1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100, 150, 200, 300, 400, 500,
+      1000,
+    ];
+    var Status = ["Open", "Idled", "Permanently closed"];
     var countyArray = [
-        "Adair",
-        "Allen",
-        "Anderson",
-        "Ballard",
-        "Barren",
-        "Bath",
-        "Bell",
-        "Boone",
-        "Bourbon",
-        "Boyd",
-        "Boyle",
-        "Bracken",
-        "Breathitt",
-        "Breckinridge",
-        "Bullitt",
-        "Butler",
-        "Caldwell",
-        "Calloway",
-        "Campbell",
-        "Carlisle",
-        "Carroll",
-        "Carter",
-        "Casey",
-        "Christian",
-        "Clarke",
-        "Clay",
-        "Clinton",
-        "Crittenden",
-        "Cumberland",
-        "Daviess",
-        "Edmonson",
-        "Elliott",
-        "Estill",
-        "Fayette",
-        "Fleming",
-        "Floyd",
-        "Franklin",
-        "Fulton",
-        "Gallatin",
-        "Garrad",
-        "Grant",
-        "Graves",
-        "Grayson",
-        "Green",
-        "Greenup",
-        "Hancock",
-        "Hardin",
-        "Harlan",
-        "Harrison",
-        "Hart",
-        "Henderson",
-        "Henry",
-        "Hickman",
-        "Hopkins",
-        "Jackson",
-        "Jefferson",
-        "Jessamine",
-        "Johnson",
-        "Kenton",
-        "Knott",
-        "Knox",
-        "LaRue",
-        "Laurel",
-        "Lawrence",
-        "Lee",
-        "Leslie",
-        "Letcher",
-        "Lewis",
-        "Lincoln",
-        "Livingston",
-        "Logan",
-        "Lyon",
-        "McCracken",
-        "McCreary",
-        "McLean",
-        "Madison",
-        "Magoffin",
-        "Marion",
-        "Marshall",
-        "Martin",
-        "Mason",
-        "Meade",
-        "Menifee",
-        "Mercer",
-        "Metcalfe",
-        "Monroe",
-        "Montgomery",
-        "Morgan",
-        "Muhlenburg",
-        "Nelson",
-        "Nicholas",
-        "Ohio",
-        "Oldham",
-        "Owen",
-        "Owsley",
-        "Pendleton",
-        "Perry",
-        "Pike",
-        "Powell",
-        "Pulaski",
-        "Robertson",
-        "Rockcastle",
-        "Rowan",
-        "Russell",
-        "Scott",
-        "Shelby",
-        "Simpson",
-        "Spencer",
-        "Taylor",
-        "Todd",
-        "Trigg",
-        "Trimble",
-        "Union",
-        "Warren",
-        "Washington",
-        "Wayne",
-        "Webster",
-        "Whitley",
-        "Wolfe",
-        "Woodford",
+      "Adair",
+      "Allen",
+      "Anderson",
+      "Ballard",
+      "Barren",
+      "Bath",
+      "Bell",
+      "Boone",
+      "Bourbon",
+      "Boyd",
+      "Boyle",
+      "Bracken",
+      "Breathitt",
+      "Breckinridge",
+      "Bullitt",
+      "Butler",
+      "Caldwell",
+      "Calloway",
+      "Campbell",
+      "Carlisle",
+      "Carroll",
+      "Carter",
+      "Casey",
+      "Christian",
+      "Clarke",
+      "Clay",
+      "Clinton",
+      "Crittenden",
+      "Cumberland",
+      "Daviess",
+      "Edmonson",
+      "Elliott",
+      "Estill",
+      "Fayette",
+      "Fleming",
+      "Floyd",
+      "Franklin",
+      "Fulton",
+      "Gallatin",
+      "Garrad",
+      "Grant",
+      "Graves",
+      "Grayson",
+      "Green",
+      "Greenup",
+      "Hancock",
+      "Hardin",
+      "Harlan",
+      "Harrison",
+      "Hart",
+      "Henderson",
+      "Henry",
+      "Hickman",
+      "Hopkins",
+      "Jackson",
+      "Jefferson",
+      "Jessamine",
+      "Johnson",
+      "Kenton",
+      "Knott",
+      "Knox",
+      "LaRue",
+      "Laurel",
+      "Lawrence",
+      "Lee",
+      "Leslie",
+      "Letcher",
+      "Lewis",
+      "Lincoln",
+      "Livingston",
+      "Logan",
+      "Lyon",
+      "McCracken",
+      "McCreary",
+      "McLean",
+      "Madison",
+      "Magoffin",
+      "Marion",
+      "Marshall",
+      "Martin",
+      "Mason",
+      "Meade",
+      "Menifee",
+      "Mercer",
+      "Metcalfe",
+      "Monroe",
+      "Montgomery",
+      "Morgan",
+      "Muhlenburg",
+      "Nelson",
+      "Nicholas",
+      "Ohio",
+      "Oldham",
+      "Owen",
+      "Owsley",
+      "Pendleton",
+      "Perry",
+      "Pike",
+      "Powell",
+      "Pulaski",
+      "Robertson",
+      "Rockcastle",
+      "Rowan",
+      "Russell",
+      "Scott",
+      "Shelby",
+      "Simpson",
+      "Spencer",
+      "Taylor",
+      "Todd",
+      "Trigg",
+      "Trimble",
+      "Union",
+      "Warren",
+      "Washington",
+      "Wayne",
+      "Webster",
+      "Whitley",
+      "Wolfe",
+      "Woodford",
+    ];
+
+    let species = [
+      "Red Oak",
+      "White oak",
+      "Chestnut oak",
+      "Hard maple",
+      "Soft maple",
+      "Ash",
+      "Hickory",
+      "Walnut",
+      "Cherry",
+      "Black Walnut",
+      "Sycamore",
+      "Beech",
+      "Basswood",
+      "Elm",
+      "Yellow-poplar",
+      "Red cedar",
+      "Gum",
+      "Black locust",
+      "Birch",
+      "Cottonwood",
+      "Eastern white pine",
+      "Southern yellow pine",
+      "Cypress",
+      "Mixed-Hardwoods",
     ];
 
     products = [
-        "Animal bedding/shavings",
-        "Antique Restoration",
-        "Arbors",
-        "Architectural casework",
-        "Arm Saw",
-        "Armoires",
-        "Audiovisual cabinets/boxes",
-        "Bark",
-        "Bark mulch",
-        "Barn doors & barn materials",
-        "Barrel Alternatives",
-        "Barrel staves",
-        "Barrels",
-        "Barrels, heading",
-        "Barrels, rain",
-        "Barrels-wine",
-        "Baseball bats",
-        "Basketball supplies",
-        "Baskets",
-        "Beach Chairs",
-        "Bed wood for pickup trucks",
-        "Beehives",
-        "Benches, Tables, Swings",
-        "Bleached pulp",
-        "Board road",
-        "Bookcases",
-        "Bowls-carved",
-        "Box Frames for Mattress (box springs)",
-        "Box spring frames",
-        "Boxes, jewelry",
-        "Burial boxes, caskets",
-        "Burial/cremation boxes",
-        "Burls",
-        "Butch Blocks",
-        "Cabinet doors",
-        "Cabinets, custom",
-        "Cabinets, custom (commerical)",
-        "Cabinets, mass-produced",
-        "Cabinets-Gun",
-        "Cable reels",
-        "Cants",
-        "Cap boards",
-        "Casework, custom",
-        "Caskets",
-        "Cedar Paneling",
-        "Chairs",
-        "Chairs, Rockers, Gliders",
-        "Charcoal",
-        "Chests, Keepsake",
-        "Childerns furniture",
-        "Chips",
-        "Church Pews",
-        "CNC machining service",
-        "Coated printing paper",
-        "Containers",
-        "Corporate Interiors",
-        "Countertops",
-        "Craft/Novelities",
-        "Crates",
-        "cribbing",
-        "Crossties",
-        "Custom dry kiln",
-        "Custom sawing",
-        "Custom stairways, stair parts",
-        "Custom woodwork",
-        "Cutting boards personalized",
-        "Dimension squares",
-        "Dimension/components",
-        "Dimensional lumber",
-        "Display cases",
-        "Dollies & skid boards",
-        "Doors/assembled door frames",
-        "Dowel rounds",
-        "Dressed Timbers",
-        "Dunnage",
-        "Electricy",
-        "Engineered wood products",
-        "Exterior Signage",
-        "Fabricated hardboard",
-        "Fence posts, boards",
-        "Fence, slit",
-        "File boxes",
-        "Fine Paper",
-        "Finger-joint blanks",
-        "Fire logs",
-        "Fire Place Mantels",
-        "Fireplace mantles",
-        "Firewood",
-        "Flooring",
-        "Flooring parts",
-        'Flooring, 5/16"',
-        "Flooring, end matched strip",
-        "Flooring, engineered",
-        "Flooring, Hardwood Accessories",
-        "Flooring, pre-finished parquet",
-        "Flooring, prefinished end matched strip",
-        "Flooring, prefinished end matched wide plank",
-        "Flooring, reclaimed oak",
-        "Flooring, remanufactured, antique flooring",
-        "Flooring, strip",
-        "Flooring, wide plank",
-        "Furniture Log",
-        "Furniture reproduction",
-        "Furniture restoration",
-        "Furniture, childrens",
-        "Furniture, custom",
-        "Furniture, mass-produced",
-        "Furniture, outdoor",
-        "Furniture, upholstered",
-        "Gazebos",
-        "Golf clubs & putters",
-        "Guard rail components",
-        "Gunstock Blanks",
-        "Handcrafted kentucky style furniture",
-        "Handle blanks",
-        "Hardwood chips",
-        "Hardwood pupwood",
-        "Hardwood sawlogs",
-        "Hardwood shavings",
-        "Hardwood veneer",
-        "Hardwood wedges",
-        "Heat Treating",
-        "Hogged wood waste",
-        "Hogshead",
-        "House boats",
-        "House/barn material kits",
-        "Indoor log railing",
-        "Industrial fuel (dust & bark)",
-        "Institution/hotel furniture",
-        "Insulation",
-        "Keepsake chests",
-        "Kentucky mountain dulcimers",
-        "Kiln dried hardwood lumber",
-        "Kiln dried heading",
-        "Kiln dried staves",
-        "Kindling",
-        "Kitchen cabinet doors",
-        "kitchen cabinets",
-        "Laminated and painted fiber board",
-        "Laminated beams",
-        "Laminated products",
-        "Laminated wood products (benches)",
-        "Laminated wood products (butcher blocks)",
-        "Lapboard siding",
-        "Library Shelving for Public Schools",
-        "Light fixtures",
-        "Log bedroom furniture",
-        "Log dining room furniture",
-        "Log fencing and railing",
-        "Log home timbers",
-        "Log homes & components",
-        "Log lawn furniture",
-        "Log office furniture",
-        "Log playground equipment",
-        "Log siding",
-        "Logging/sawmill equipment parts & sales",
-        "Logs",
-        "Logs,exported",
-        "Logs, hardwood",
-        "Lumber, air dried",
-        "Lumber, cedar",
-        "Lumber, construction hardwood dimension",
-        "Lumber, construction softwood dimension",
-        "Lumber, custom sawn",
-        "Lumber, discount",
-        "Lumber, fence",
-        "Lumber, frame stock",
-        "Lumber, graded hardwood",
-        "Lumber, green",
-        "Lumber, green hardwood",
-        "Lumber, green softwood",
-        "Lumber, kiln dried",
-        "Lumber, kiln dried hardwood",
-        "Lumber, kiln dried quarter sawn",
-        "Lumber, pallet",
-        "Lumber, pre-surfaced kiln dried",
-        "Lumber, softwood dimension",
-        "Machinery movers",
-        "Mantles",
-        "Mats",
-        "Memory boxes personalized",
-        "Milwork",
-        "Mine timbers",
-        "Mobile wood waste grinding",
-        "Moulding",
-        "Mulch",
-        "Mulch, colored enhanced",
-        "Music boxes laser engraves",
-        "Musical instruments",
-        "N/A",
-        "Office cabinets",
-        "Outdoor log railing",
-        "Paint paddles",
-        "Pallet cants",
-        "Pallet lumber",
-        "Pallet parts",
-        "Pallet sterilization",
-        "Pallets",
-        "Pallets, rebuilt",
-        "Pallets/crafting",
-        "Paper",
-        "Particle board, sublimation products",
-        "Peller/plywood logs",
-        "Pepper Mills",
-        "Pergoals, Arbors, Garden",
-        "Picnic Shelters",
-        "Playground chips",
-        "Plywood",
-        "Poplar",
-        "Posts",
-        "Posts, peeled",
-        "Posts, sawn",
-        "Posts, sawn cedar",
-        "Pottery Tools",
-        "Prefab wall panels",
-        "Prefinished engineered wood panels",
-        "Privacy Fnece Picketts",
-        "Promotional Wood Displays",
-        "Pulp",
-        "Pulpits",
-        "Pulpwood",
-        "Pulpwood, Hardwood",
-        "Pulpwood, Softwood",
-        "Rail car decking",
-        "Raised veneer panels",
-        "Refurbish bourbon barrels",
-        "Residue for charcoal",
-        "Restaurant Booths and Tables",
-        "Rustic Furniture",
-        "Sawdust",
-        "Sawing, contract",
-        "Sawlogs",
-        "Shavings",
-        "Shooks",
-        "Skids",
-        "Slabs",
-        "Sling Chairs",
-        "Small diameter logs",
-        "Smoking chips",
-        "Softwood chips",
-        "Softwood pulpwood",
-        "Soil mixtures",
-        "Specialty pallets",
-        "Split Fence Rails",
-        "Stair parts",
-        "Stave logs",
-        "Staves, Kiln dried",
-        "Staves, tight cooperage",
-        "Stools",
-        "Storage buildings",
-        "Store fixtures/displays",
-        "Structural insulated panels",
-        "Supplier of logs",
-        "Ties",
-        "Tigt cooperage heading",
-        "Tight cooperage heading, kiln dried",
-        "Tight cooperage staves",
-        "Tight cooperage staves, kiln dried",
-        "Timber Broker",
-        "Timber decking",
-        "Timbers",
-        "Treated crossties",
-        "Treated poles",
-        "Treated post",
-        "Treated softwood construction",
-        "Treated timbers",
-        "Trellis Pieces",
-        "Trusses",
-        "Tunnel blocking",
-        "Turkey calls",
-        "Turned craved ornaments",
-        "Used Barrell Sales",
-        "Utensils",
-        "Vanities",
-        "Veneer",
-        "Veneer logs",
-        "Veneer panels for cabinet doors",
-        "Veneer, flat sliced",
-        "Veneer, hardwood",
-        "Veneer, rotary sliced",
-        "Wagon Flats",
-        "Walnut Steaming",
-        "wedges",
-        "Whiskey barrel furniture and planters",
-        "Wood carpet",
-        "Wood chips",
-        "Wood Christmas ornaments",
-        "Wood flour",
-        "Wood framed hymns",
-        "Wood packaging",
-        "Wood products preserver",
-        "Wood products retailer",
-        "Wood sculptures/carvings",
-        "Wood shutters",
-        "Wood stakes",
-        "Wood toys",
-        "Wood trusses",
-        "Wood waste",
-        "Wooden baby gates",
-        "Wooden clad windows",
-        "Wooden Lighting Fixtures",
-        "Wooden utensils",
+      "Animal bedding/shavings",
+      "Antique Restoration",
+      "Arbors",
+      "Architectural casework",
+      "Arm Saw",
+      "Armoires",
+      "Audiovisual cabinets/boxes",
+      "Bark",
+      "Bark mulch",
+      "Barn doors & barn materials",
+      "Barrel Alternatives",
+      "Barrel staves",
+      "Barrels",
+      "Barrels, heading",
+      "Barrels, rain",
+      "Barrels-wine",
+      "Baseball bats",
+      "Basketball supplies",
+      "Baskets",
+      "Beach Chairs",
+      "Bed wood for pickup trucks",
+      "Beehives",
+      "Benches, Tables, Swings",
+      "Bleached pulp",
+      "Board road",
+      "Bookcases",
+      "Bowls-carved",
+      "Box Frames for Mattress (box springs)",
+      "Box spring frames",
+      "Boxes, jewelry",
+      "Burial boxes, caskets",
+      "Burial/cremation boxes",
+      "Burls",
+      "Butch Blocks",
+      "Cabinet doors",
+      "Cabinets, custom",
+      "Cabinets, custom (commerical)",
+      "Cabinets, mass-produced",
+      "Cabinets-Gun",
+      "Cable reels",
+      "Cants",
+      "Cap boards",
+      "Casework, custom",
+      "Caskets",
+      "Cedar Paneling",
+      "Chairs",
+      "Chairs, Rockers, Gliders",
+      "Charcoal",
+      "Chests, Keepsake",
+      "Childerns furniture",
+      "Chips",
+      "Church Pews",
+      "CNC machining service",
+      "Coated printing paper",
+      "Containers",
+      "Corporate Interiors",
+      "Countertops",
+      "Craft/Novelities",
+      "Crates",
+      "cribbing",
+      "Crossties",
+      "Custom dry kiln",
+      "Custom sawing",
+      "Custom stairways, stair parts",
+      "Custom woodwork",
+      "Cutting boards personalized",
+      "Dimension squares",
+      "Dimension/components",
+      "Dimensional lumber",
+      "Display cases",
+      "Dollies & skid boards",
+      "Doors/assembled door frames",
+      "Dowel rounds",
+      "Dressed Timbers",
+      "Dunnage",
+      "Electricy",
+      "Engineered wood products",
+      "Exterior Signage",
+      "Fabricated hardboard",
+      "Fence posts, boards",
+      "Fence, slit",
+      "File boxes",
+      "Fine Paper",
+      "Finger-joint blanks",
+      "Fire logs",
+      "Fire Place Mantels",
+      "Fireplace mantles",
+      "Firewood",
+      "Flooring",
+      "Flooring parts",
+      'Flooring, 5/16"',
+      "Flooring, end matched strip",
+      "Flooring, engineered",
+      "Flooring, Hardwood Accessories",
+      "Flooring, pre-finished parquet",
+      "Flooring, prefinished end matched strip",
+      "Flooring, prefinished end matched wide plank",
+      "Flooring, reclaimed oak",
+      "Flooring, remanufactured, antique flooring",
+      "Flooring, strip",
+      "Flooring, wide plank",
+      "Furniture Log",
+      "Furniture reproduction",
+      "Furniture restoration",
+      "Furniture, childrens",
+      "Furniture, custom",
+      "Furniture, mass-produced",
+      "Furniture, outdoor",
+      "Furniture, upholstered",
+      "Gazebos",
+      "Golf clubs & putters",
+      "Guard rail components",
+      "Gunstock Blanks",
+      "Handcrafted kentucky style furniture",
+      "Handle blanks",
+      "Hardwood chips",
+      "Hardwood pupwood",
+      "Hardwood sawlogs",
+      "Hardwood shavings",
+      "Hardwood veneer",
+      "Hardwood wedges",
+      "Heat Treating",
+      "Hogged wood waste",
+      "Hogshead",
+      "House boats",
+      "House/barn material kits",
+      "Indoor log railing",
+      "Industrial fuel (dust & bark)",
+      "Institution/hotel furniture",
+      "Insulation",
+      "Keepsake chests",
+      "Kentucky mountain dulcimers",
+      "Kiln dried hardwood lumber",
+      "Kiln dried heading",
+      "Kiln dried staves",
+      "Kindling",
+      "Kitchen cabinet doors",
+      "kitchen cabinets",
+      "Laminated and painted fiber board",
+      "Laminated beams",
+      "Laminated products",
+      "Laminated wood products (benches)",
+      "Laminated wood products (butcher blocks)",
+      "Lapboard siding",
+      "Library Shelving for Public Schools",
+      "Light fixtures",
+      "Log bedroom furniture",
+      "Log dining room furniture",
+      "Log fencing and railing",
+      "Log home timbers",
+      "Log homes & components",
+      "Log lawn furniture",
+      "Log office furniture",
+      "Log playground equipment",
+      "Log siding",
+      "Logging/sawmill equipment parts & sales",
+      "Logs",
+      "Logs,exported",
+      "Logs, hardwood",
+      "Lumber, air dried",
+      "Lumber, cedar",
+      "Lumber, construction hardwood dimension",
+      "Lumber, construction softwood dimension",
+      "Lumber, custom sawn",
+      "Lumber, discount",
+      "Lumber, fence",
+      "Lumber, frame stock",
+      "Lumber, graded hardwood",
+      "Lumber, green",
+      "Lumber, green hardwood",
+      "Lumber, green softwood",
+      "Lumber, kiln dried",
+      "Lumber, kiln dried hardwood",
+      "Lumber, kiln dried quarter sawn",
+      "Lumber, pallet",
+      "Lumber, pre-surfaced kiln dried",
+      "Lumber, softwood dimension",
+      "Machinery movers",
+      "Mantles",
+      "Mats",
+      "Memory boxes personalized",
+      "Milwork",
+      "Mine timbers",
+      "Mobile wood waste grinding",
+      "Moulding",
+      "Mulch",
+      "Mulch, colored enhanced",
+      "Music boxes laser engraves",
+      "Musical instruments",
+      "N/A",
+      "Office cabinets",
+      "Outdoor log railing",
+      "Paint paddles",
+      "Pallet cants",
+      "Pallet lumber",
+      "Pallet parts",
+      "Pallet sterilization",
+      "Pallets",
+      "Pallets, rebuilt",
+      "Pallets/crafting",
+      "Paper",
+      "Particle board, sublimation products",
+      "Peller/plywood logs",
+      "Pepper Mills",
+      "Pergoals, Arbors, Garden",
+      "Picnic Shelters",
+      "Playground chips",
+      "Plywood",
+      "Poplar",
+      "Posts",
+      "Posts, peeled",
+      "Posts, sawn",
+      "Posts, sawn cedar",
+      "Pottery Tools",
+      "Prefab wall panels",
+      "Prefinished engineered wood panels",
+      "Privacy Fnece Picketts",
+      "Promotional Wood Displays",
+      "Pulp",
+      "Pulpits",
+      "Pulpwood",
+      "Pulpwood, Hardwood",
+      "Pulpwood, Softwood",
+      "Rail car decking",
+      "Raised veneer panels",
+      "Refurbish bourbon barrels",
+      "Residue for charcoal",
+      "Restaurant Booths and Tables",
+      "Rustic Furniture",
+      "Sawdust",
+      "Sawing, contract",
+      "Sawlogs",
+      "Shavings",
+      "Shooks",
+      "Skids",
+      "Slabs",
+      "Sling Chairs",
+      "Small diameter logs",
+      "Smoking chips",
+      "Softwood chips",
+      "Softwood pulpwood",
+      "Soil mixtures",
+      "Specialty pallets",
+      "Split Fence Rails",
+      "Stair parts",
+      "Stave logs",
+      "Staves, Kiln dried",
+      "Staves, tight cooperage",
+      "Stools",
+      "Storage buildings",
+      "Store fixtures/displays",
+      "Structural insulated panels",
+      "Supplier of logs",
+      "Ties",
+      "Tigt cooperage heading",
+      "Tight cooperage heading, kiln dried",
+      "Tight cooperage staves",
+      "Tight cooperage staves, kiln dried",
+      "Timber Broker",
+      "Timber decking",
+      "Timbers",
+      "Treated crossties",
+      "Treated poles",
+      "Treated post",
+      "Treated softwood construction",
+      "Treated timbers",
+      "Trellis Pieces",
+      "Trusses",
+      "Tunnel blocking",
+      "Turkey calls",
+      "Turned craved ornaments",
+      "Used Barrell Sales",
+      "Utensils",
+      "Vanities",
+      "Veneer",
+      "Veneer logs",
+      "Veneer panels for cabinet doors",
+      "Veneer, flat sliced",
+      "Veneer, hardwood",
+      "Veneer, rotary sliced",
+      "Wagon Flats",
+      "Walnut Steaming",
+      "wedges",
+      "Whiskey barrel furniture and planters",
+      "Wood carpet",
+      "Wood chips",
+      "Wood Christmas ornaments",
+      "Wood flour",
+      "Wood framed hymns",
+      "Wood packaging",
+      "Wood products preserver",
+      "Wood products retailer",
+      "Wood sculptures/carvings",
+      "Wood shutters",
+      "Wood stakes",
+      "Wood toys",
+      "Wood trusses",
+      "Wood waste",
+      "Wooden baby gates",
+      "Wooden clad windows",
+      "Wooden Lighting Fixtures",
+      "Wooden utensils",
     ];
 
     let methodsBought = [
-        "Standing Timber",
-        "Gatewood Delivered",
-        "Logs delivered",
-        "Chips Delivered",
-        "Roundwood Delivered",
-        "Delivered",
-        "Pickup",
-        "Cants Delivered",
-        "Slab wood Delivered",
-        "Bark Delivered",
-        "Sawdust Delivered",
-        "Own Production",
-        "Post Delivered",
-        "Parts Delivered",
-        "Lumber Delivered",
-        "Green lumber Delivered",
-        "Recycled Material Bought",
+      "Standing Timber",
+      "Gatewood Delivered",
+      "Logs delivered",
+      "Chips Delivered",
+      "Roundwood Delivered",
+      "Delivered",
+      "Pickup",
+      "Cants Delivered",
+      "Slab wood Delivered",
+      "Bark Delivered",
+      "Sawdust Delivered",
+      "Own Production",
+      "Post Delivered",
+      "Parts Delivered",
+      "Lumber Delivered",
+      "Green lumber Delivered",
+      "Recycled Material Bought",
     ];
     methodsBought = methodsBought.sort();
-</script>
 
+    sells = ["Yes", "No"];
+  </script>
 </html>
