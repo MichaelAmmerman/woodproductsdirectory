@@ -81,6 +81,10 @@
       input[type="radio"] {
         accent-color: #0033a0;
       }
+
+      #button1{
+        
+      }
     </style>
   </header>
   <head>
@@ -88,7 +92,7 @@
   </head>
   <body>
     <script src="sorttable.js"></script>
-    <form>
+    <form id="woodProducts">
       <span
         ><label for="search" id="search">Search:</label>
         <input type="text" id="search" style="width: 90vw" /> <br
@@ -239,7 +243,9 @@
               value="Methods_Bought"
             />
             <label for="categoryMethods">Methods</label>
-          </div>
+          </div><br>
+          <div><button type="button" id="button1">Apply</button><button type="button" id="button2">Reset</button></div>
+          
         </div>
         <div class="box1" id="createFilter"></div>
         <div class="box2" id="createCategory"></div>
