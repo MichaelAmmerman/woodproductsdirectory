@@ -94,7 +94,7 @@
     <script src="sorttable.js"></script>
     <form id="woodProducts">
       <span
-        ><label for="search" id="search">Search:</label>
+        ><label for="search" id="searchLine">Search:</label>
         <input type="text" id="search" style="width: 90vw" /> <br
       /></span>
       <div class="container">
@@ -480,7 +480,7 @@
         for (let i = 0; i < sells.length; i++) {
           const checkbox = document.createElement("input");
           checkbox.type = "checkbox";
-          checkbox.value = [i];
+          checkbox.value = sells[i];
           checkbox.name = sells[i];
           checkbox.id = sells[i];
 
@@ -543,6 +543,61 @@
         filterCategoryEmployees.disabled = false;
       }
     }
+
+
+    // build reset button
+    const button2 = document.getElementById("button2");
+    button2.addEventListener('click', function(){
+      document.getElementById("categoryNone").checked = true;
+      document.getElementById("filterNone").checked = true;
+      document.getElementById("searchNone").checked = true;
+      document.getElementById("createCategory").innerHTML = "";
+      document.getElementById("createFilter").innerHTML = "";
+
+    });
+
+    document.getElementById("button1").addEventListener("click", function () {
+    let sqlClauses = [];
+
+    // ----- SEARCH -----
+    const searchText = document.getElementById("search").value.trim();
+    const searchFieldRadio = document.querySelector('input[name="search"]:checked');
+    const searchField = searchFieldRadio ? searchFieldRadio.value : "None";
+
+    if (searchText !== "" && searchField !== "None") {
+      sqlClauses.push(`${searchField} LIKE '%${searchText}%'`);
+    }
+
+    // ----- FILTER -----
+    const filterRadio = document.querySelector('input[name="filter"]:checked');
+    const filterField = filterRadio ? filterRadio.value : "None";
+
+    const filterChecks = document.querySelectorAll("#createFilter input[type='checkbox']:checked");
+    if (filterChecks.length > 0 && filterField !== "None") {
+      let values = Array.from(filterChecks).map(cb => `'${cb.value}'`);
+      sqlClauses.push(`${filterField} IN (${values.join(", ")})`);
+    }
+
+    // ----- CATEGORY -----
+    const categoryRadio = document.querySelector('input[name="category"]:checked');
+    const categoryField = categoryRadio ? categoryRadio.value : "None";
+
+    const categoryChecks = document.querySelectorAll("#createCategory input[type='checkbox']:checked");
+    if (categoryChecks.length > 0 && categoryField !== "None") {
+      let values = Array.from(categoryChecks).map(cb => `'${cb.value}'`);
+      sqlClauses.push(`${categoryField} IN (${values.join(", ")})`);
+    }
+
+    // ----- FINAL OUTPUT -----
+    const outputDiv = document.querySelector(".output");
+    if (sqlClauses.length > 0) {
+      let fullSQL = "WHERE " + sqlClauses.join(" AND ");
+      console.log("SQL Query:", fullSQL);
+      outputDiv.innerText = fullSQL;
+    } else {
+      outputDiv.innerText = "No conditions selected.";
+    }
+  });
 
     let employeesNumber = [
       1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100, 150, 200, 300, 400, 500,
