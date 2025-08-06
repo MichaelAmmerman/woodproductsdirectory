@@ -50,7 +50,28 @@
         /* Max 80% of viewport height */
         overflow-y: auto;
       }
+      table {
+        width: 100%;
+        border-collapse: collapse; /* 🔑 collapse adjacent borders */
+        font-family: Calibri, sans-serif;
+        color: black;
+      }
 
+      th,
+      td {
+        border: 1px solid #ccc; /* ✅ one uniform border */
+        padding: 6px;
+        font-size: 14px;
+        text-align: left;
+        vertical-align: top;
+      }
+
+      th {
+        background-color: #0056b3;
+        color: #f1f1f1;
+        font-size: 16px;
+        font-weight: bold;
+      }
       h3 {
         font-family: Calibri;
         font-size: 16pt;
@@ -81,9 +102,11 @@
       input[type="radio"] {
         accent-color: #0033a0;
       }
-
-      #button1{
-        
+      .box1,
+      .box2 {
+        display: none;
+      }
+      #button1 {
       }
     </style>
   </header>
@@ -115,7 +138,7 @@
               type="radio"
               id="searchCompany"
               name="search"
-              value="Company"
+              value="Company_Name"
             />
             <label for="searchCompany">Company</label><br />
           </div>
@@ -243,9 +266,12 @@
               value="Methods_Bought"
             />
             <label for="categoryMethods">Methods</label>
-          </div><br>
-          <div><button type="button" id="button1">Apply</button><button type="button" id="button2">Reset</button></div>
-          
+          </div>
+          <br />
+          <div>
+            <button type="button" id="button1">Apply</button
+            ><button type="button" id="button2">Reset</button>
+          </div>
         </div>
         <div class="box1" id="createFilter"></div>
         <div class="box2" id="createCategory"></div>
@@ -392,6 +418,7 @@
         }
       } else {
       }
+      document.querySelector(".box1").style.display = "block";
     }
 
     function buildCategory(event) {
@@ -495,7 +522,7 @@
             .appendChild(document.createElement("br"));
         }
       }
-      
+      document.querySelector(".box2").style.display = "block";
     }
 
     // filter category when selected from the filter by
@@ -512,9 +539,9 @@
 
       if (event.target.value === "Methods_Bought") {
         filterCategoryMethods.disabled = true;
-        if(document.getElementById('categoryMethods').disabled){
-            document.getElementById("categoryNone").checked = true;
-            document.getElementById("createCategory").innerHTML = "";
+        if (document.getElementById("categoryMethods").disabled) {
+          document.getElementById("categoryNone").checked = true;
+          document.getElementById("createCategory").innerHTML = "";
         }
       } else {
         filterCategoryMethods.disabled = false;
@@ -525,9 +552,9 @@
         document.getElementById("filterProducts").disabled
       ) {
         filterCategoryProducts.disabled = true;
-        if(document.getElementById("categoryProducts").disabled){
-            document.getElementById("categoryNone").checked = true;
-            document.getElementById("createCategory").innerHTML = "";
+        if (document.getElementById("categoryProducts").disabled) {
+          document.getElementById("categoryNone").checked = true;
+          document.getElementById("createCategory").innerHTML = "";
         }
       } else {
         filterCategoryProducts.disabled = false;
@@ -535,69 +562,137 @@
 
       if (event.target.value === "Number_Of_Employees") {
         filterCategoryEmployees.disabled = true;
-        if(document.getElementById('categoryEmployees').disabled){
-            document.getElementById("categoryNone").checked = true;
-            document.getElementById("createCategory").innerHTML = "";
+        if (document.getElementById("categoryEmployees").disabled) {
+          document.getElementById("categoryNone").checked = true;
+          document.getElementById("createCategory").innerHTML = "";
         }
       } else {
         filterCategoryEmployees.disabled = false;
       }
     }
 
-
     // build reset button
     const button2 = document.getElementById("button2");
-    button2.addEventListener('click', function(){
+    button2.addEventListener("click", function () {
       document.getElementById("categoryNone").checked = true;
       document.getElementById("filterNone").checked = true;
       document.getElementById("searchNone").checked = true;
       document.getElementById("createCategory").innerHTML = "";
       document.getElementById("createFilter").innerHTML = "";
-
     });
 
     document.getElementById("button1").addEventListener("click", function () {
-    let sqlClauses = [];
+      document.querySelector(".box1").style.display = "none";
+      document.querySelector(".box2").style.display = "none";
+      let sqlClauses = [];
 
-    // ----- SEARCH -----
-    const searchText = document.getElementById("search").value.trim();
-    const searchFieldRadio = document.querySelector('input[name="search"]:checked');
-    const searchField = searchFieldRadio ? searchFieldRadio.value : "None";
+      // ----- SEARCH -----
+      const searchText = document.getElementById("search").value.trim();
+      const searchFieldRadio = document.querySelector(
+        'input[name="search"]:checked'
+      );
+      const searchField = searchFieldRadio ? searchFieldRadio.value : "None";
 
-    if (searchText !== "" && searchField !== "None") {
-      sqlClauses.push(`${searchField} LIKE '%${searchText}%'`);
-    }
+      if (searchText !== "" && searchField !== "None") {
+        sqlClauses.push(`${searchField} LIKE '%${searchText}%'`);
+      }
 
-    // ----- FILTER -----
-    const filterRadio = document.querySelector('input[name="filter"]:checked');
-    const filterField = filterRadio ? filterRadio.value : "None";
+      // ----- FILTER (LIKE with OR) -----
+      const filterRadio = document.querySelector(
+        'input[name="filter"]:checked'
+      );
+      const filterField = filterRadio ? filterRadio.value : "None";
 
-    const filterChecks = document.querySelectorAll("#createFilter input[type='checkbox']:checked");
-    if (filterChecks.length > 0 && filterField !== "None") {
-      let values = Array.from(filterChecks).map(cb => `'${cb.value}'`);
-      sqlClauses.push(`${filterField} IN (${values.join(", ")})`);
-    }
+      const filterChecks = document.querySelectorAll(
+        "#createFilter input[type='checkbox']:checked"
+      );
+      if (filterChecks.length > 0 && filterField !== "None") {
+        let likeClauses = Array.from(filterChecks).map(
+          (cb) => `${filterField} LIKE '%${cb.value}%'`
+        );
+        sqlClauses.push(`(${likeClauses.join(" OR ")})`);
+      }
 
-    // ----- CATEGORY -----
-    const categoryRadio = document.querySelector('input[name="category"]:checked');
-    const categoryField = categoryRadio ? categoryRadio.value : "None";
+      // ----- CATEGORY (LIKE with OR) -----
+      const categoryRadio = document.querySelector(
+        'input[name="category"]:checked'
+      );
+      const categoryField = categoryRadio ? categoryRadio.value : "None";
 
-    const categoryChecks = document.querySelectorAll("#createCategory input[type='checkbox']:checked");
-    if (categoryChecks.length > 0 && categoryField !== "None") {
-      let values = Array.from(categoryChecks).map(cb => `'${cb.value}'`);
-      sqlClauses.push(`${categoryField} IN (${values.join(", ")})`);
-    }
+      const categoryChecks = document.querySelectorAll(
+        "#createCategory input[type='checkbox']:checked"
+      );
+      if (categoryChecks.length > 0 && categoryField !== "None") {
+        let likeClauses = Array.from(categoryChecks).map(
+          (cb) => `${categoryField} LIKE '%${cb.value}%'`
+        );
+        sqlClauses.push(`(${likeClauses.join(" OR ")})`);
+      }
 
-    // ----- FINAL OUTPUT -----
-    const outputDiv = document.querySelector(".output");
-    if (sqlClauses.length > 0) {
-      let fullSQL = "WHERE " + sqlClauses.join(" AND ");
-      console.log("SQL Query:", fullSQL);
-      outputDiv.innerText = fullSQL;
-    } else {
-      outputDiv.innerText = "No conditions selected.";
-    }
-  });
+      // ----- FINAL OUTPUT -----
+      const outputDiv = document.querySelector(".output");
+      if (sqlClauses.length > 0) {
+        let fullSQL =
+          "SELECT Company_Name, Physical_Address, City, Zip, County, Number_Of_Employees, Industry_Class, Species_Produced, Products_Produced, Methods_Bought FROM Wood_Industry_Directory.Info WHERE " +
+          sqlClauses.join(" AND ");
+        console.log("SQL Query:", fullSQL);
+        outputDiv.innerText = fullSQL;
+
+        // Optional: fetch data from PHP (uncomment if you're ready)
+
+        fetch("https://woodproducts.ukfnrext.org/fetchData.php", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: fullSQL }),
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.length > 0) {
+              let table = `
+        <table>
+          <thead>
+          <tr>
+            <th>Company Name</th>
+            <th>Mailing Address</th>
+            <th>County</th>
+            <th>Number of Employees</th>
+            <th>Classes</th>
+            <th>Species</th>
+            <th>Products</th>
+            <th>Methods</th>
+          </tr>
+          </thead>
+        `;
+
+              console.log(data);
+              data.forEach((row) => {
+                table += `<tr>
+                <td>${row.Company_Name || ""}</td>
+                <td>${row.Physical_Address || ""}, ${row.City || ""}, ${
+                  row.Zip || ""
+                }</td>
+                <td>${row.County || ""}</td>
+                <td>${row.Number_Of_Employees || ""}</td>
+                <td>${row.Industry_Class || ""}</td>
+                <td>${row.Species_Produced || ""}</td>
+                <td>${row.Products_Produced || ""}</td>
+                <td>${row.Methods_Bought || ""}</td>
+                </tr>
+                `;
+              });
+              outputDiv.innerHTML = table;
+            } else {
+              outputDiv.innerHTML = fullSQL + "<br><br>No results found.";
+            }
+          })
+          .catch((err) => {
+            console.error("Fetch error:", err);
+            outputDiv.innerText = "Error fetching data.";
+          });
+      } else {
+        outputDiv.innerText = "No conditions selected.";
+      }
+    });
 
     let employeesNumber = [
       1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100, 150, 200, 300, 400, 500,
