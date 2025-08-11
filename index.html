@@ -22,7 +22,7 @@
           "search output output output";
         grid-template-columns: 10vw 15vw 15vw 60vw;
         gap: 5px;
-        background-color: #2196f3;
+        background-color: #ffffff;
         padding: 5px;
       }
 
@@ -66,12 +66,11 @@
         overflow-y: auto;
       }
       table {
-        width: 100%;
+        width: 95%;
         border-collapse: collapse; /* 🔑 collapse adjacent borders */
         font-family: Calibri, sans-serif;
         color: black;
         table-layout: fixed;
-        width: 100%; /* Or a specific width */
         overflow-x: auto;
       }
 
@@ -126,6 +125,9 @@
       }
       #button1 {
       }
+      #searchLine{
+        font-size: 36;
+      }
     </style>
   </header>
   <head>
@@ -136,7 +138,7 @@
     <form id="woodProducts">
       <span
         ><label for="search" id="searchLine">Search:</label>
-        <input type="text" id="search" style="width: 90vw" /> <br
+        <input type="text" id="search" style="width: 95vw" /> <br
       /></span>
       <div class="container">
         <div class="search">
@@ -695,7 +697,7 @@
               data.forEach((row) => {
                 table += `<tr>
                 <td>${row.Company_Name || ""}</td>
-                <td>${row.Physical_Address || ""}, ${row.City || ""}, ${
+                <td>${row.Physical_Address || ""}, ${row.City || ""}, KY ${
                   row.Zip || ""
                 }</td>
                 <td>${row.County || ""}</td>
