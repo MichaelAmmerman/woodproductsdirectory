@@ -3,6 +3,8 @@
 <html>
   <header>
     <style>
+
+      /*
       .container {
         display: grid;
         grid-template-areas: "search box1 box2 output";
@@ -11,6 +13,19 @@
         background-color: #2196f3;
         padding: 5px;
       }
+
+      */
+
+      .container {
+        display: grid;
+        grid-template-areas:
+          "search output output output";
+        grid-template-columns: 10vw 15vw 15vw 60vw;
+        gap: 5px;
+        background-color: #2196f3;
+        padding: 5px;
+      }
+
 
       .container > div {
         background-color: rgba(255, 255, 255, 0.8);
@@ -55,6 +70,9 @@
         border-collapse: collapse; /* 🔑 collapse adjacent borders */
         font-family: Calibri, sans-serif;
         color: black;
+        table-layout: fixed;
+        width: 100%; /* Or a specific width */
+        overflow-x: auto;
       }
 
       th,
@@ -293,6 +311,8 @@
     const radioFilter = document.querySelectorAll('input[name="filter"]');
     radioFilter.forEach((radioFilter) => {
       radioFilter.addEventListener("change", function (event) {
+        document.querySelector(".container").style.gridTemplateAreas =
+          '"search box1 box2 output"';
         if (event.target.checked) {
           console.log("you selected", event.target.value);
           filterByLock(event);
@@ -304,9 +324,12 @@
     const radioCategory = document.querySelectorAll('input[name="category"]');
     radioCategory.forEach((radioCategory) => {
       radioCategory.addEventListener("change", function (event) {
+        document.querySelector(".container").style.gridTemplateAreas =
+          '"search box1 box2 output"';
         if (event.target.checked) {
           console.log("you selected", event.target.value);
           buildCategory(event);
+
         }
       });
     });
@@ -579,11 +602,15 @@
       document.getElementById("searchNone").checked = true;
       document.getElementById("createCategory").innerHTML = "";
       document.getElementById("createFilter").innerHTML = "";
+      document.querySelector(".container").style.gridTemplateAreas =
+        '"search output output output"';
     });
 
     document.getElementById("button1").addEventListener("click", function () {
       document.querySelector(".box1").style.display = "none";
       document.querySelector(".box2").style.display = "none";
+      document.querySelector(".container").style.gridTemplateAreas =
+        '"search output output output"';
       let sqlClauses = [];
 
       // ----- SEARCH -----
