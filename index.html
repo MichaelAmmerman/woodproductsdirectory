@@ -3,7 +3,6 @@
 <html>
   <header>
     <style>
-
       /*
       .container {
         display: grid;
@@ -15,17 +14,20 @@
       }
 
       */
-
+      td a {
+        display: block; /* makes the link act like a block */
+        width: 100%; /* span the whole column width */
+        text-align: left; /* or center/right if you prefer */
+        overflow-wrap: break-word; /* keeps long URLs from breaking layout */
+      }
       .container {
         display: grid;
-        grid-template-areas:
-          "search output output output";
+        grid-template-areas: "search output output output";
         grid-template-columns: 10vw 15vw 15vw 60vw;
         gap: 5px;
         background-color: #ffffff;
         padding: 5px;
       }
-
 
       .container > div {
         background-color: rgba(255, 255, 255, 0.8);
@@ -125,13 +127,19 @@
       }
       #button1 {
       }
-      #searchLine{
+      #searchLine {
         font-size: 36;
       }
     </style>
   </header>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"
+      integrity="sha512-GsLlZN/3F2ErC5ifS5QtgpiJtWd43JWSuIgh7mbzZ8zBps+dvLusV+eNQATqgA/HdeKFVgA5v3S/cIrLF7QnIg=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
   </head>
   <body>
     <script src="sorttable.js"></script>
@@ -292,6 +300,7 @@
             <button type="button" id="button1">Apply</button
             ><button type="button" id="button2">Reset</button>
           </div>
+          <button type="button" id="generate-pdf-btn">Generate PDF</button>
         </div>
         <div class="box1" id="createFilter"></div>
         <div class="box2" id="createCategory"></div>
@@ -299,6 +308,9 @@
       </div>
     </form>
   </body>
+
+  <script src="sorttable.js"></script>
+
   <script>
     const radioSearch = document.querySelectorAll('input[name="search"]');
     radioSearch.forEach((radioSearch) => {
@@ -331,7 +343,6 @@
         if (event.target.checked) {
           console.log("you selected", event.target.value);
           buildCategory(event);
-
         }
       });
     });
@@ -662,7 +673,7 @@
       const outputDiv = document.querySelector(".output");
       if (sqlClauses.length > 0) {
         let fullSQL =
-          "SELECT Company_Name, Physical_Address, City, Zip, County, Number_Of_Employees, Industry_Class, Species_Produced, Products_Produced, Methods_Bought FROM Wood_Industry_Directory.Info WHERE " +
+          "SELECT Company_Name, Physical_Address, City, Zip, County, Number_Of_Employees, Industry_Class, Species_Produced, Products_Produced, Methods_Bought, Website FROM Wood_Industry_Directory.Info WHERE " +
           sqlClauses.join(" AND ");
         console.log("SQL Query:", fullSQL);
         outputDiv.innerText = fullSQL;
@@ -678,7 +689,8 @@
           .then((data) => {
             if (data.length > 0) {
               let table = `
-        <table>
+      <div id="capture-section">
+        <table class="sortable">
           <thead>
           <tr>
             <th>Company Name</th>
@@ -689,6 +701,7 @@
             <th>Species</th>
             <th>Products</th>
             <th>Methods</th>
+            <th>Website</th>
           </tr>
           </thead>
         `;
@@ -706,10 +719,27 @@
                 <td>${row.Species_Produced || ""}</td>
                 <td>${row.Products_Produced || ""}</td>
                 <td>${row.Methods_Bought || ""}</td>
-                </tr>
                 `;
+                if (!row.Website) {
+                  table += `<td>N/A</td>
+                  </tr>`;
+                } else {
+                  table += `<td><a href="${row.Website}">${row.Website}</a></td>
+                    </tr>
+                  `;
+                }
               });
+              table += `
+                  </tbody>
+                  </table>
+                  </div>
+                `;
               outputDiv.innerHTML = table;
+
+              const tbl = outputDiv.querySelector("table.sortable");
+              if (window.sorttable && tbl) {
+                sorttable.makeSortable(tbl);
+              }
             } else {
               outputDiv.innerHTML = fullSQL + "<br><br>No results found.";
             }
@@ -722,6 +752,24 @@
         outputDiv.innerText = "No conditions selected.";
       }
     });
+
+    document
+      .getElementById("generate-pdf-btn")
+      .addEventListener("click", () => {
+        const captureSection = document.getElementById("capture-section");
+        html2pdf()
+          .from(captureSection)
+          .set({
+            margin: .25,
+            pagebreak: {
+              mode: ["css", "legacy"], // honor CSS + support the legacy helper class
+              avoid: ["tr", ".avoid-break"], // try to keep rows/elements together
+            },
+            html2canvas: { scale: 2},
+            jsPDF: { unit: "in", format: "letter", orientation: "landscape" },
+          })
+          .save();
+      });
 
     let employeesNumber = [
       1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100, 150, 200, 300, 400, 500,
