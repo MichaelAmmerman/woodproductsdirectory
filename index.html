@@ -2,6 +2,7 @@
 
 <html>
   <header>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <style>
       /*
       .container {
@@ -125,7 +126,40 @@
       .box2 {
         display: none;
       }
+      button {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        margin-right: 8px; /* space between buttons */
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: bold;
+        color: #fff;
+      }
+
+      /* Apply button – solid blue */
       #button1 {
+        background-color: #007bff;
+      }
+      #button1:hover {
+        background-color: #0056b3;
+      }
+
+      /* Reset button – red for caution */
+      #button2 {
+        background-color: #dc3545;
+      }
+      #button2:hover {
+        background-color: #a71d2a;
+      }
+
+      /* Generate PDF button – green for action/confirmation */
+      #generate-pdf-btn {
+        background-color: #28a745;
+        margin-top: 6px;
+      }
+      #generate-pdf-btn:hover {
+        background-color: #1e7e34;
       }
       #searchLine {
         font-size: 36;
@@ -693,7 +727,7 @@
         <table class="sortable">
           <thead>
           <tr>
-            <th>Company Name</th>
+            <th>Company Name </th>
             <th>Mailing Address</th>
             <th>County</th>
             <th>Number of Employees</th>
@@ -721,10 +755,10 @@
                 <td>${row.Methods_Bought || ""}</td>
                 `;
                 if (!row.Website) {
-                  table += `<td>N/A</td>
+                  table += `<td></td>
                   </tr>`;
                 } else {
-                  table += `<td><a href="${row.Website}">${row.Website}</a></td>
+                  table += `<td><a href="${row.Website}" target="_blank">${row.Website}</a></td>
                     </tr>
                   `;
                 }
@@ -760,16 +794,86 @@
         html2pdf()
           .from(captureSection)
           .set({
-            margin: .25,
+            margin: 0.25,
             pagebreak: {
               mode: ["css", "legacy"], // honor CSS + support the legacy helper class
               avoid: ["tr", ".avoid-break"], // try to keep rows/elements together
             },
-            html2canvas: { scale: 2},
+            html2canvas: { scale: 2 },
             jsPDF: { unit: "in", format: "letter", orientation: "landscape" },
           })
           .save();
       });
+
+    window.onload = function () {
+      sqlStart =
+        "SELECT Company_Name, Physical_Address, City, Zip, County, Number_Of_Employees, Industry_Class, Species_Produced, Products_Produced, Methods_Bought, Website FROM Wood_Industry_Directory.Info LIMIT 50;";
+      fetch("https://woodproducts.ukfnrext.org/fetchData.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query: sqlStart }),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          let table = `
+      <div id="capture-section">
+        <table class="sortable">
+          <thead>
+          <tr>
+            <th>Company Name </th>
+            <th>Mailing Address</th>
+            <th>County</th>
+            <th>Number of Employees</th>
+            <th>Classes</th>
+            <th>Species</th>
+            <th>Products</th>
+            <th>Methods</th>
+            <th>Website</th>
+          </tr>
+          </thead>
+        `;
+
+          console.log(data);
+          data.forEach((row) => {
+            table += `<tr>
+                <td>${row.Company_Name || ""}</td>
+                <td><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                  (row.Physical_Address || "") +
+                    ", " +
+                    (row.City || "") +
+                    ", KY " +
+                    (row.Zip || "")
+                )}" 
+    target="_blank" 
+    rel="noopener"
+  >
+    ${row.Physical_Address || ""},<br> ${row.City || ""}, KY ${row.Zip || ""}
+  </a>
+</td>
+                <td>${row.County || ""}</td>
+                <td>${row.Number_Of_Employees || ""}</td>
+                <td>${row.Industry_Class || ""}</td>
+                <td>${row.Species_Produced || ""}</td>
+                <td>${row.Products_Produced || ""}</td>
+                <td>${row.Methods_Bought || ""}</td>
+                `;
+            if (!row.Website) {
+              table += `<td></td>
+                  </tr>`;
+            } else {
+              table += `<td><a href="${row.Website}" target="_blank">${row.Website}</a></td>
+                    </tr>
+                  `;
+            }
+          });
+          table += `
+                  </tbody>
+                  </table>
+                  </div>
+                `;
+          document.querySelector(".output").innerHTML = table;
+        });
+    };
 
     let employeesNumber = [
       1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100, 150, 200, 300, 400, 500,
