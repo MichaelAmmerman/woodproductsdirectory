@@ -157,12 +157,47 @@
       #generate-pdf-btn {
         background-color: #28a745;
         margin-top: 6px;
+        width: 150px;
       }
       #generate-pdf-btn:hover {
         background-color: #1e7e34;
       }
+
+      #view-all {
+        background-color: black;
+        margin-top: 6px;
+        width: 150px;
+      }
+
+      #view-all:hover {
+        background-color: darkgrey;
+      }
       #searchLine {
         font-size: 36;
+      }
+
+      .pagination {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        margin-top: 10px;
+        flex-wrap: wrap;
+      }
+      .pagination button {
+        padding: 6px 10px;
+        border: 1px solid #ccc;
+        background: #f7f7f7;
+        color: #000;
+        cursor: pointer;
+        border-radius: 4px;
+        font-weight: 600;
+      }
+      .pagination button[disabled] {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+      .pagination .page-info {
+        font-family: Calibri, sans-serif;
       }
     </style>
   </header>
@@ -334,6 +369,7 @@
             <button type="button" id="button1">Apply</button
             ><button type="button" id="button2">Reset</button>
           </div>
+          <button type="button" id="view-all">View All</button>
           <button type="button" id="generate-pdf-btn">Generate PDF</button>
         </div>
         <div class="box1" id="createFilter"></div>
@@ -341,11 +377,240 @@
         <div class="output"></div>
       </div>
     </form>
+
+    <!-- injected pagination module (non-destructive) -->
+    <script>
+      (function () {
+        const ENDPOINT = "https://woodproducts.ukfnrext.org/fetchData.php";
+
+        // Public state (scoped to this IIFE)
+        const PAGE_SIZE = 50;
+        let vaCurrentPage = 1;
+        let vaTotalRows = 0;
+        let vaTotalPages = 1;
+        let initialized = false;
+
+        function ensureOutput() {
+          const out = document.querySelector(".output");
+          if (!out) {
+            console.warn("[pager] .output container not found");
+            return null;
+          }
+          return out;
+        }
+
+        function buildCompaniesTable(rows) {
+          let html = `
+      <div id="capture-section">
+        <table class="sortable">
+          <thead>
+            <tr>
+              <th>Company Name</th>
+              <th>Mailing Address</th>
+              <th>County</th>
+              <th>Employees</th>
+              <th>Classes</th>
+              <th>Species</th>
+              <th>Products</th>
+              <th>Methods</th>
+              <th>Website</th>
+            </tr>
+          </thead>
+          <tbody>
+    `;
+          const offset = (vaCurrentPage - 1) * PAGE_SIZE;
+          rows.forEach((row, i) => {
+            const n = offset + i + 1;
+            const addr = `${row.Physical_Address || ""}, ${
+              row.City || ""
+            }, KY ${row.Zip || ""}`;
+            html += `
+        <tr>
+          <td>${row.Company_Name || ""}</td>
+          <td>
+            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+              addr
+            )}"
+               target="_blank" rel="noopener">
+               ${row.Physical_Address || ""}${
+              row.Physical_Address ? "," : ""
+            }<br>
+               ${row.City || ""}${row.City ? "," : ""} KY ${row.Zip || ""}
+            </a>
+          </td>
+          <td>${row.County || ""}</td>
+          <td>${row.Number_Of_Employees || ""}</td>
+          <td>${row.Industry_Class || ""}</td>
+          <td>${row.Species_Produced || ""}</td>
+          <td>${row.Products_Produced || ""}</td>
+          <td>${row.Methods_Bought || ""}</td>
+          ${
+            row.Website
+              ? `<td><a href="${row.Website}" target="_blank" rel="noopener">${row.Website}</a></td>`
+              : `<td></td>`
+          }
+        </tr>
+      `;
+          });
+          html += `
+          </tbody>
+        </table>
+      </div>
+      <div id="pagination" class="pagination"></div>
+    `;
+          return html;
+        }
+
+        function renderPagination() {
+          const out = ensureOutput();
+          if (!out) return;
+          const pag = out.querySelector("#pagination");
+          if (!pag) return;
+
+          pag.innerHTML = "";
+          const start = (vaCurrentPage - 1) * PAGE_SIZE + 1;
+          const end = Math.min(vaCurrentPage * PAGE_SIZE, vaTotalRows);
+
+          const mkBtn = (label, disabled, onClick) => {
+            const b = document.createElement("button");
+            b.textContent = label;
+            b.disabled = !!disabled;
+            b.onclick = onClick;
+            return b;
+          };
+
+          const firstBtn = mkBtn("⏮ First", vaCurrentPage === 1, () =>
+            loadAllCompanies(1)
+          );
+          const prevBtn = mkBtn("◀ Prev", vaCurrentPage === 1, () =>
+            loadAllCompanies(vaCurrentPage - 1)
+          );
+          const nextBtn = mkBtn("Next ▶", vaCurrentPage === vaTotalPages, () =>
+            loadAllCompanies(vaCurrentPage + 1)
+          );
+          const lastBtn = mkBtn("Last ⏭", vaCurrentPage === vaTotalPages, () =>
+            loadAllCompanies(vaTotalPages)
+          );
+
+          const info = document.createElement("span");
+          info.className = "page-info";
+          info.textContent = `Showing ${start}-${end} of ${vaTotalRows} (Page ${vaCurrentPage}/${vaTotalPages})`;
+
+          pag.append(firstBtn, prevBtn, info, nextBtn, lastBtn);
+        }
+
+        async function ensureTotalCount() {
+          if (vaTotalRows > 0) return;
+          const countSql =
+            "SELECT COUNT(*) AS total FROM Wood_Industry_Directory.Info;";
+          try {
+            const res = await fetch(ENDPOINT, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              cache: "no-store",
+              body: JSON.stringify({ query: countSql }),
+            });
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+              const first = data[0] || {};
+              vaTotalRows = Number(first.total ?? first["COUNT(*)"] ?? 0) || 0;
+            } else {
+              vaTotalRows = 0;
+            }
+          } catch (e) {
+            console.error("[pager] Count error:", e);
+            vaTotalRows = 0;
+          }
+          vaTotalPages = Math.max(1, Math.ceil(vaTotalRows / PAGE_SIZE));
+        }
+
+        async function loadAllCompanies(page = 1) {
+          vaCurrentPage = Math.max(1, parseInt(page, 10) || 1);
+          await ensureTotalCount();
+
+          const out = ensureOutput();
+          if (!out) return;
+          out.innerHTML = `<p style="color:#666;">Loading page ${vaCurrentPage}…</p>`;
+
+          const offset = (vaCurrentPage - 1) * PAGE_SIZE;
+          const sql = `
+      SELECT Company_Name, Physical_Address, City, Zip, County, Number_Of_Employees,
+             Industry_Class, Species_Produced, Products_Produced, Methods_Bought, Website
+      FROM Wood_Industry_Directory.Info
+      ORDER BY Company_Name ASC
+      LIMIT ${offset}, ${PAGE_SIZE};
+    `;
+
+          try {
+            const res = await fetch(ENDPOINT, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              cache: "no-store",
+              body: JSON.stringify({ query: sql }),
+            });
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+              out.innerHTML = buildCompaniesTable(data);
+              // re-enable sorttable if present
+              if (window.sorttable && out.querySelector("table.sortable")) {
+                sorttable.makeSortable(out.querySelector("table.sortable"));
+              }
+              renderPagination();
+            } else {
+              out.innerHTML = "<p>No results found.</p>";
+            }
+          } catch (e) {
+            console.error("[pager] Fetch error:", e);
+            out.innerHTML = "<p>Error fetching data.</p>";
+          }
+        }
+
+        // Hook into existing layout without destroying it
+        function initPager() {
+          if (initialized) return;
+          initialized = true;
+
+          // Wire "View All" button if present
+          const viewAllBtn = document.getElementById("view-all");
+          if (viewAllBtn) {
+            viewAllBtn.addEventListener("click", () => {
+              vaCurrentPage = 1;
+              vaTotalRows = 0;
+              vaTotalPages = 1;
+              loadAllCompanies(1);
+            });
+          }
+
+          // Force first 50 on initial open
+          vaCurrentPage = 1;
+          vaTotalRows = 0;
+          vaTotalPages = 1;
+          loadAllCompanies(1);
+        }
+
+        // Our onload will override prior window.onload assignments without removing their logic
+        // If the page uses addEventListener, both will run.
+        if (document.readyState === "loading") {
+          document.addEventListener("DOMContentLoaded", initPager);
+        } else {
+          initPager();
+        }
+
+        // Expose for debugging (optional)
+        window.__pager = {
+          next: () => loadAllCompanies(vaCurrentPage + 1),
+          prev: () => loadAllCompanies(vaCurrentPage - 1),
+          goto: (p) => loadAllCompanies(p),
+        };
+      })();
+    </script>
   </body>
 
   <script src="sorttable.js"></script>
 
   <script>
+    const PAGE_SIZE = 50;
+    let vaCurrentPage, vaTotalRows, vaTotalPages;
     const radioSearch = document.querySelectorAll('input[name="search"]');
     radioSearch.forEach((radioSearch) => {
       radioSearch.addEventListener("change", function (event) {
@@ -787,94 +1052,281 @@
       }
     });
 
-    document
-      .getElementById("generate-pdf-btn")
-      .addEventListener("click", () => {
-        const captureSection = document.getElementById("capture-section");
-        html2pdf()
-          .from(captureSection)
-          .set({
-            margin: 0.25,
-            pagebreak: {
-              mode: ["css", "legacy"], // honor CSS + support the legacy helper class
-              avoid: ["tr", ".avoid-break"], // try to keep rows/elements together
-            },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: "in", format: "letter", orientation: "landscape" },
-          })
-          .save();
+    document.getElementById("generate-pdf-btn").addEventListener("click", () => {
+  const captureSection = document.getElementById("capture-section");
+  html2pdf()
+    .from(captureSection)
+    .set({
+      margin: 0.25,
+      pagebreak: {
+        mode: ["css", "legacy"],
+        avoid: ["tr", ".avoid-break"],
+      },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: "in", format: "letter", orientation: "landscape" },
+    })
+    .toPdf()
+    .get("pdf")
+    .then(async (pdf) => {
+      // last page
+      const total = pdf.getNumberOfPages();
+      pdf.setPage(total);
+
+      // page size in INCHES because unit = "in"
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+
+      // margins (inches)
+      const marginX = 0.25;
+      const marginBottom = 0.25;
+
+      // --- date text (inches) ---
+      pdf.setFont("helvetica", "normal");
+      pdf.setFontSize(10); // font size is still in pt (that's OK)
+      const dateStr = new Date().toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
       });
+      // place ~0.2" above bottom margin, 0.25" from left
+      pdf.text(`Generated on ${dateStr}`, marginX, pageH - (marginBottom + 0.2));
+
+      // --- footer image (use inches for placement/size) ---
+      const imgURL = "images/Small_Logos-PDF.png";
+      const dataURL = await toDataURL(imgURL);
+
+      const { w: pxW, h: pxH } = await getImageNaturalSize(dataURL);
+      const ratio = pxH / pxW;
+
+      // fit image to page width inside left/right margins
+      const targetW = pageW - marginX * 2;      // inches
+      const targetH = targetW * ratio;           // inches (same scale)
+
+      // position so image sits above bottom margin by ~0.35"
+      const x = marginX;
+      const y = Math.max(marginBottom + 0.35, pageH - targetH - marginBottom - 0.1);
+
+      pdf.addImage(dataURL, "PNG", x, y, targetW, targetH);
+    })
+    .save();
+
+  // helpers
+  function toDataURL(url) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      // tip: if image is SAME ORIGIN, omit crossOrigin to avoid CORS headaches
+      // img.crossOrigin = "anonymous";  // ← comment this out for same-origin assets
+      img.onload = () => {
+        const c = document.createElement("canvas");
+        c.width = img.naturalWidth;
+        c.height = img.naturalHeight;
+        c.getContext("2d").drawImage(img, 0, 0);
+        resolve(c.toDataURL("image/png"));
+      };
+      img.onerror = reject;
+      img.src = url;
+    });
+  }
+
+  function getImageNaturalSize(dataURL) {
+    return new Promise((resolve, reject) => {
+      const i = new Image();
+      i.onload = () => resolve({ w: i.naturalWidth, h: i.naturalHeight });
+      i.onerror = reject;
+      i.src = dataURL;
+    });
+  }
+});
 
     window.onload = function () {
-      sqlStart =
-        "SELECT Company_Name, Physical_Address, City, Zip, County, Number_Of_Employees, Industry_Class, Species_Produced, Products_Produced, Methods_Bought, Website FROM Wood_Industry_Directory.Info LIMIT 50;";
-      fetch("https://woodproducts.ukfnrext.org/fetchData.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query: sqlStart }),
-      })
-        .then((response) => response.json())
-        .then((data) => {
-          let table = `
+      vaCurrentPage = 1; // reset counters
+      vaTotalRows = 0;
+      vaTotalPages = 1;
+      loadAllCompanies(1);
+    };
+
+    // Build the table HTML (reuses your columns & address->Google Maps link)
+    function buildCompaniesTable(rows) {
+      let table = `
       <div id="capture-section">
         <table class="sortable">
           <thead>
-          <tr>
-            <th>Company Name </th>
-            <th>Mailing Address</th>
-            <th>County</th>
-            <th>Employees</th>
-            <th>Classes</th>
-            <th>Species</th>
-            <th>Products</th>
-            <th>Methods</th>
-            <th>Website</th>
-          </tr>
+            <tr>
+              <th>Company Name</th>
+              <th>Mailing Address</th>
+              <th>County</th>
+              <th>Employees</th>
+              <th>Classes</th>
+              <th>Species</th>
+              <th>Products</th>
+              <th>Methods</th>
+              <th>Website</th>
+            </tr>
           </thead>
-        `;
+          <tbody>
+    `;
 
-          console.log(data);
-          data.forEach((row) => {
-            table += `<tr>
-                <td>${row.Company_Name || ""}</td>
-                <td><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                  (row.Physical_Address || "") +
-                    ", " +
-                    (row.City || "") +
-                    ", KY " +
-                    (row.Zip || "")
-                )}" 
-    target="_blank" 
-    rel="noopener"
-  >
-    ${row.Physical_Address || ""},<br> ${row.City || ""}, KY ${row.Zip || ""}
-  </a>
-</td>
-                <td>${row.County || ""}</td>
-                <td>${row.Number_Of_Employees || ""}</td>
-                <td>${row.Industry_Class || ""}</td>
-                <td>${row.Species_Produced || ""}</td>
-                <td>${row.Products_Produced || ""}</td>
-                <td>${row.Methods_Bought || ""}</td>
-                `;
-            if (!row.Website) {
-              table += `<td></td>
-                  </tr>`;
-            } else {
-              table += `<td><a href="${row.Website}" target="_blank">${row.Website}</a></td>
-                    </tr>
-                  `;
-            }
-          });
-          table += `
-                  </tbody>
-                  </table>
-                  </div>
-                `;
-          document.querySelector(".output").innerHTML = table;
-        });
-    };
+      rows.forEach((row) => {
+        const addr = `${row.Physical_Address || ""}, ${row.City || ""}, KY ${
+          row.Zip || ""
+        }`;
+        table += `
+        <tr>
+          <td>${row.Company_Name || ""}</td>
+          <td>
+            <a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+              addr
+            )}"
+               target="_blank" rel="noopener">
+               ${row.Physical_Address || ""},<br> ${row.City || ""}, KY ${
+          row.Zip || ""
+        }
+            </a>
+          </td>
+          <td>${row.County || ""}</td>
+          <td>${row.Number_Of_Employees || ""}</td>
+          <td>${row.Industry_Class || ""}</td>
+          <td>${row.Species_Produced || ""}</td>
+          <td>${row.Products_Produced || ""}</td>
+          <td>${row.Methods_Bought || ""}</td>
+          ${
+            row.Website
+              ? `<td><a href="${row.Website}" target="_blank">${row.Website}</a></td>`
+              : `<td></td>`
+          }
+        </tr>
+      `;
+      });
 
+      table += `
+          </tbody>
+        </table>
+      </div>
+      <div id="pagination" class="pagination"></div>
+    `;
+      return table;
+    }
+
+    // Render pagination controls
+    function renderPagination() {
+      const outputDiv = document.querySelector(".output");
+      const pag = outputDiv.querySelector("#pagination");
+      if (!pag) return;
+
+      pag.innerHTML = ""; // clear
+
+      const firstBtn = document.createElement("button");
+      firstBtn.textContent = "⏮ First";
+      firstBtn.disabled = vaCurrentPage === 1;
+      firstBtn.onclick = () => loadAllCompanies(1);
+
+      const prevBtn = document.createElement("button");
+      prevBtn.textContent = "◀ Prev";
+      prevBtn.disabled = vaCurrentPage === 1;
+      prevBtn.onclick = () => loadAllCompanies(vaCurrentPage - 1);
+
+      const nextBtn = document.createElement("button");
+      nextBtn.textContent = "Next ▶";
+      nextBtn.disabled = vaCurrentPage === vaTotalPages;
+      nextBtn.onclick = () => loadAllCompanies(vaCurrentPage + 1);
+
+      const lastBtn = document.createElement("button");
+      lastBtn.textContent = "Last ⏭";
+      lastBtn.disabled = vaCurrentPage === vaTotalPages;
+      lastBtn.onclick = () => loadAllCompanies(vaTotalPages);
+
+      const info = document.createElement("span");
+      info.className = "page-info";
+      const start = (vaCurrentPage - 1) * PAGE_SIZE + 1;
+      const end = Math.min(vaCurrentPage * PAGE_SIZE, vaTotalRows);
+      info.textContent = `Showing ${start}-${end} of ${vaTotalRows} (Page ${vaCurrentPage}/${vaTotalPages})`;
+
+      pag.appendChild(firstBtn);
+      pag.appendChild(prevBtn);
+      pag.appendChild(info);
+      pag.appendChild(nextBtn);
+      pag.appendChild(lastBtn);
+    }
+
+    // Fetch a page of 50 companies and render
+    async function loadAllCompanies(page = 1) {
+      vaCurrentPage = page;
+
+      const outputDiv = document.querySelector(".output");
+      // collapse side panels & widen output
+      document.querySelector(".box1").style.display = "none";
+      document.querySelector(".box2").style.display = "none";
+      document.querySelector(".container").style.gridTemplateAreas =
+        '"search output output output"';
+
+      // Get total row count once (for pagination)
+      if (vaTotalRows === 0) {
+        const countSql =
+          "SELECT COUNT(*) AS total FROM Wood_Industry_Directory.Info;";
+        const countRes = await fetch(
+          "https://woodproducts.ukfnrext.org/fetchData.php",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ query: countSql }),
+          }
+        )
+          .then((r) => r.json())
+          .catch(() => []);
+
+        // Accept either [{total: N}] or [{ "COUNT(*)": N }] depending on backend
+        if (Array.isArray(countRes) && countRes.length > 0) {
+          const first = countRes[0] || {};
+          vaTotalRows = Number(first.total ?? first["COUNT(*)"] ?? 0) || 0;
+        } else {
+          vaTotalRows = 0;
+        }
+        vaTotalPages = Math.max(1, Math.ceil(vaTotalRows / PAGE_SIZE));
+      }
+
+      const offset = (vaCurrentPage - 1) * PAGE_SIZE;
+
+      const sql = `
+      SELECT Company_Name, Physical_Address, City, Zip, County, Number_Of_Employees,
+             Industry_Class, Species_Produced, Products_Produced, Methods_Bought, Website
+      FROM Wood_Industry_Directory.Info
+      ORDER BY Company_Name ASC
+      LIMIT ${PAGE_SIZE} OFFSET ${offset};
+    `;
+
+      // Fetch the page
+      const data = await fetch(
+        "https://woodproducts.ukfnrext.org/fetchData.php",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ query: sql }),
+        }
+      )
+        .then((r) => r.json())
+        .catch(() => []);
+
+      if (Array.isArray(data) && data.length > 0) {
+        outputDiv.innerHTML = buildCompaniesTable(data);
+
+        // enable sorting
+        const tbl = outputDiv.querySelector("table.sortable");
+        if (window.sorttable && tbl) sorttable.makeSortable(tbl);
+
+        renderPagination();
+      } else {
+        outputDiv.innerHTML = `<p>No results found.</p>`;
+      }
+    }
+
+    // Hook up the button
+    document.getElementById("view-all").addEventListener("click", () => {
+      // Reset counters so we re-count total rows when "View All" is clicked again
+      vaCurrentPage = 1;
+      vaTotalRows = 0;
+      vaTotalPages = 1;
+      loadAllCompanies(1);
+    });
     let employeesNumber = [
       1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 100, 150, 200, 300, 400, 500,
       1000,
